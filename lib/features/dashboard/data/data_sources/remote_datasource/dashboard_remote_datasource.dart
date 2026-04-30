@@ -1,9 +1,11 @@
 import 'package:baobab_business/features/dashboard/data/models/stats_model.dart';
+import 'package:baobab_business/features/dashboard/presentation/widgets/sales_pie_chart.dart';
 import 'package:dio/dio.dart';
 
 
 abstract class DashboardRemoteDataSource {
   Future<StatsModel> getDashboardStats(String businessId);
+  Future<List<ProductSalesData>> getProductSales(String businessId); // ✅
 }
 
 class DashboardRemoteDataSourceImpl implements DashboardRemoteDataSource {

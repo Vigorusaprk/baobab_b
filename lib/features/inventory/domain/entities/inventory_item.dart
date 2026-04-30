@@ -8,6 +8,7 @@ class InventoryItem {
   final String? description;
   final String? imageUrl;
   final String? ingredients;
+  final int soldQuantity; // ✅ Quantité vendue
 
   const InventoryItem({
     required this.id,
@@ -19,5 +20,6 @@ class InventoryItem {
     this.description,
     this.imageUrl,
     this.ingredients,
+    this.soldQuantity = 0,
   });
 }

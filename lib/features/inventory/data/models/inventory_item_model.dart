@@ -1,4 +1,3 @@
-// lib/features/inventory/data/models/inventory_item_model.dart
 import '../../domain/entities/inventory_item.dart';
 
 class InventoryItemModel extends InventoryItem {
@@ -12,9 +11,9 @@ class InventoryItemModel extends InventoryItem {
     super.description,
     super.imageUrl,
     super.ingredients,
+    super.soldQuantity,
   });
 
-  /// Convertit une valeur dynamique en double (gère String, num, null)
   static double _toDouble(dynamic value) {
     if (value == null) return 0.0;
     if (value is num) return value.toDouble();
@@ -22,12 +21,10 @@ class InventoryItemModel extends InventoryItem {
     return 0.0;
   }
 
-  /// Convertit une valeur dynamique en String? (gère List, String, null)
   static String? _toStringOrNull(dynamic value) {
     if (value == null) return null;
     if (value is String) return value;
     if (value is List) {
-      // Si la liste contient des éléments, on les joint avec une virgule
       return value.isNotEmpty ? value.join(', ') : null;
     }
     return value.toString();
@@ -44,6 +41,7 @@ class InventoryItemModel extends InventoryItem {
       description: json['description'],
       imageUrl: _toStringOrNull(json['image_url']),
       ingredients: _toStringOrNull(json['ingredients']),
+      soldQuantity: json['sold_quantity'] ?? 0, // ✅ mapping
     );
   }
 
@@ -58,9 +56,9 @@ class InventoryItemModel extends InventoryItem {
       'description': description,
       'image_url': imageUrl,
       'ingredients': ingredients,
+      'sold_quantity': soldQuantity,
     };
   }
 
-  /// Convertit le modèle en entité (utile pour le repository)
   InventoryItem toEntity() => this;
 }

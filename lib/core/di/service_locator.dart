@@ -20,6 +20,7 @@ import 'package:baobab_business/features/dashboard/data/repositories/dashboard_r
 import 'package:baobab_business/features/dashboard/domain/repositories/customer_repository.dart';
 import 'package:baobab_business/features/dashboard/domain/repositories/dashboard_repository.dart';
 import 'package:baobab_business/features/dashboard/domain/usecases/get_dashboard_stats.dart';
+import 'package:baobab_business/features/dashboard/domain/usecases/get_product_sales.dart';
 import 'package:baobab_business/features/dashboard/presentation/bloc/customer_bloc.dart';
 import 'package:baobab_business/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:baobab_business/features/inventory/data/data_sources/remote_datasource/inventory_remote_datasource.dart';
@@ -74,7 +75,7 @@ Future<void> init() async {
   sl.registerLazySingleton<DashboardRemoteDataSource>(() => DashboardRemoteDataSourceImpl(dio: sl()));
   sl.registerLazySingleton<DashboardRepository>(() => DashboardRepositoryImpl(remoteDataSource: sl()));
   sl.registerLazySingleton(() => GetDashboardStats(sl()));
-  sl.registerFactory(() => DashboardBloc(getDashboardStats: sl()));
+  sl.registerFactory(() => DashboardBloc(getDashboardStats: sl(), getProductSales: sl()));
 
   // Inventory
   sl.registerLazySingleton<InventoryRemoteDataSource>(() => InventoryRemoteDataSourceImpl(dio: sl()));
@@ -99,4 +100,16 @@ Future<void> init() async {
     getBookings: sl(),
     updateBookingStatus: sl(),
   ));
+
+  // Dans la fonction configureDependencies()
+  sl.registerLazySingleton<GetProductSales>(
+        () => GetProductSales(sl<DashboardRepository>()),
+  );
+
+  sl.registerFactory<DashboardBloc>(
+        () => DashboardBloc(
+      getDashboardStats: sl<GetDashboardStats>(),
+      getProductSales: sl<GetProductSales>(),
+    ),
+  );
 }

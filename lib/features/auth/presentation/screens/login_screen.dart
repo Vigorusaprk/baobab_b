@@ -34,169 +34,320 @@ class _LoginScreenState extends State<LoginScreen> {
   }
 
   @override
+  void dispose() {
+    _emailCtrl.dispose();
+    _pwdCtrl.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
+    final isTablet = MediaQuery.of(context).size.width >= 600;
+    return isTablet ? _buildTabletLayout() : _buildMobileLayout();
+  }
+
+  // ---------- MÉTHODE COMMUNE POUR LE BLOC CONSUMER ----------
+  Widget _buildBlocConsumer({
+    required Widget Function(BuildContext context, AuthState state) builder,
+  }) {
+    return BlocConsumer<AuthBloc, AuthState>(
+      listener: (context, state) {
+        print('🔊 [LOGIN_SCREEN] Nouvel état : $state');
+        if (state is AuthAuthenticated) {
+          print('✅ [LOGIN_SCREEN] Authentifié, redirection...');
+          final businessId = state.user.businessId;
+          if (businessId != null && businessId.isNotEmpty) {
+            context.go('/dashboard');
+          } else {
+            context.go('/no-business');
+          }
+        } else if (state is AuthError) {
+          print('❌ [LOGIN_SCREEN] Erreur : ${state.message}');
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(state.message),
+              backgroundColor: Colors.red,
+            ),
+          );
+        }
+      },
+      builder: builder,
+    );
+  }
+
+  // ---------- LAYOUT MOBILE ----------
+  Widget _buildMobileLayout() {
     return authBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
         body: Center(
           child: SingleChildScrollView(
             padding: const EdgeInsets.all(24),
-            child: BlocConsumer<AuthBloc, AuthState>(
-              listener: (context, state) {
-                print('🔊 [LOGIN_SCREEN] Nouvel état : $state');
-                if (state is AuthAuthenticated) {
-                  print('✅ [LOGIN_SCREEN] Authentifié, redirection...');
-                  final businessId = state.user.businessId;
-                  if (businessId != null && businessId.isNotEmpty) {
-                    context.go('/dashboard');
-                  } else {
-                    context.go('/no-business');
-                  }
-                } else if (state is AuthError) {
-                  print('❌ [LOGIN_SCREEN] Erreur : ${state.message}');
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    SnackBar(
-                      content: Text(state.message),
-                      backgroundColor: Colors.red,
-                    ),
-                  );
-                }
-              },
+            child: _buildBlocConsumer(
               builder: (context, state) {
                 return Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    ClipRRect(
-                      child: BackdropFilter(
-                        filter: ImageFilter.blur(sigmaX: 17, sigmaY: 17),
-                        child: Container(
-                          decoration: BoxDecoration(
-                            border: Border.all(
-                              color: AppColors.scaffoldBackground,
-                              width: 2.5,
-                            ),
-                            color: Colors.green.withOpacity(0.25),
-                            borderRadius: BorderRadius.circular(20),
-                          ),
-                          padding: const EdgeInsets.symmetric(
-                            horizontal: 16,
-                            vertical: 10,
-                          ),
-                          child: Row(
-                            crossAxisAlignment: CrossAxisAlignment.center,
-                            children: [
-                              Icon(
-                                Icons.login,
-                                size:
-                                    MediaQuery.of(context).size.width *
-                                    0.15, // 15% de la largeur
-                                color: AppColors.scaffoldBackground,
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: Column(
-                                  children: [
-                                    Text(
-                                      'Heureux de vous revoir',
-                                      style: TextStyle(
-                                        fontSize:
-                                            MediaQuery.of(context).size.width *
-                                            0.07,
-                                        fontWeight: FontWeight.bold,
-                                        color: AppColors.primaryDark,
-                                      ),
-                                      softWrap: true,
-                                    ),
-
-                                    Text(
-                                      "Conecter vous avotre compte pour continué l'avnture ",
-                                      style: TextStyle(
-                                        color: AppColors.scaffoldBackground,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                      ),
-                    ),
+                    _buildMobileHeader(),
                     const SizedBox(height: 48),
-                    TextField(
-                      controller: _emailCtrl,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: AppColors.scaffoldBackground,
-                        labelText: 'Email',
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFF1A371F), width: 2.5,),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.blue, width: 1.5),
-                        ),
-                      ),
-                      keyboardType: TextInputType.emailAddress,
-                    ),
+                    _buildEmailField(),
                     const SizedBox(height: 16),
-                    TextField(
-                      controller: _pwdCtrl,
-                      obscureText: _obscure,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: AppColors.scaffoldBackground,
-                        labelText: 'Mot de passe',
-                        focusedBorder: OutlineInputBorder(
-                          borderSide: BorderSide(color: Color(0xFF1A371F), width: 2.5),
-                          borderRadius: BorderRadius.circular(12),
-                        ),
-                        border: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(12),
-                          borderSide: BorderSide(color: Colors.blue, width: 1.5),
-                        ),
-                        suffixIcon: IconButton(
-                          icon: Icon(
-                            _obscure ? Icons.visibility_off : Icons.visibility,
-                          ),
-                          onPressed: () => setState(() => _obscure = !_obscure),
-                        ),
-                      ),
-                    ),
+                    _buildPasswordField(),
                     const SizedBox(height: 24),
-                    SizedBox(
-                      width: double.infinity,
-                      height: 50,
-                      child: ElevatedButton(
-                        onPressed: state is AuthLoading ? null : _onLogin,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: AppColors.primaryLight,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(12),
-                          ),
-                        ),
-                        child: state is AuthLoading
-                            ? const CircularProgressIndicator(
-                                color: Colors.white,
-                              )
-                            : const Text(
-                                'Se connecter',
-                                style: TextStyle(fontSize: 16, color: AppColors.scaffoldBackground),
-                              ),
-                      ),
-                    ),
+                    _buildLoginButton(state),
                     const SizedBox(height: 16),
-                    TextButton(
-                      onPressed: () => context.push('/register'),
-                      child: const Text('Créer un compte', style: TextStyle(fontSize: 16, color: AppColors.primary),),
-                    ),
+                    _buildRegisterLink(),
                   ],
                 );
               },
             ),
           ),
         ),
+      ),
+    );
+  }
+
+  // ---------- LAYOUT TABLETTE ----------
+  Widget _buildTabletLayout() {
+    return authBackground(
+      child: Scaffold(
+        backgroundColor: Colors.transparent,
+        body: Row(
+          children: [
+            // Partie gauche : illustration / branding
+            Expanded(
+              flex: 1,
+              child: Container(
+                color: AppColors.primaryDark,
+                child: Center(
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.business,
+                        size: 100,
+                        color: AppColors.scaffoldBackground,
+                      ),
+                      const SizedBox(height: 20),
+                      Text(
+                        'Baobab Business',
+                        style: TextStyle(
+                          fontSize: 28,
+                          fontWeight: FontWeight.bold,
+                          color: AppColors.scaffoldBackground,
+                        ),
+                      ),
+                      const SizedBox(height: 10),
+                      Text(
+                        'Gérez votre activité en toute simplicité',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          fontSize: 16,
+                          color: AppColors.scaffoldBackground.withOpacity(0.9),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            ),
+            // Partie droite : formulaire
+            Expanded(
+              flex: 1,
+              child: Center(
+                child: SingleChildScrollView(
+                  padding: const EdgeInsets.all(40),
+                  child: _buildBlocConsumer(
+                    builder: (context, state) {
+                      return Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          _buildTabletHeader(),
+                          const SizedBox(height: 40),
+                          _buildEmailField(),
+                          const SizedBox(height: 20),
+                          _buildPasswordField(),
+                          const SizedBox(height: 30),
+                          _buildLoginButton(state),
+                          const SizedBox(height: 20),
+                          _buildRegisterLink(),
+                        ],
+                      );
+                    },
+                  ),
+                ),
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // ---------- WIDGETS RÉUTILISABLES (ou spécifiques) ----------
+
+  Widget _buildMobileHeader() {
+    return ClipRRect(
+      child: BackdropFilter(
+        filter: ImageFilter.blur(sigmaX: 17, sigmaY: 17),
+        child: Container(
+          decoration: BoxDecoration(
+            border: Border.all(
+              color: AppColors.scaffoldBackground,
+              width: 2.5,
+            ),
+            color: Colors.green.withOpacity(0.25),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.center,
+            children: [
+              Icon(
+                Icons.login,
+                size: MediaQuery.of(context).size.width * 0.15,
+                color: AppColors.scaffoldBackground,
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      'Heureux de vous revoir',
+                      style: TextStyle(
+                        fontSize: MediaQuery.of(context).size.width * 0.07,
+                        fontWeight: FontWeight.bold,
+                        color: AppColors.primaryDark,
+                      ),
+                      softWrap: true,
+                    ),
+                    Text(
+                      "Connectez-vous à votre compte pour continuer l'aventure",
+                      style: TextStyle(
+                        color: AppColors.scaffoldBackground,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildTabletHeader() {
+    return Column(
+      children: [
+        Icon(
+          Icons.account_circle,
+          size: 80,
+          color: AppColors.primaryDark,
+        ),
+        const SizedBox(height: 16),
+        Text(
+          'Connexion',
+          style: TextStyle(
+            fontSize: 28,
+            fontWeight: FontWeight.bold,
+            color: AppColors.primaryDark,
+          ),
+        ),
+        const SizedBox(height: 8),
+        Text(
+          'Accédez à votre espace professionnel',
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColors.primaryDark.withOpacity(0.7),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildEmailField() {
+    return TextField(
+      controller: _emailCtrl,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: AppColors.scaffoldBackground,
+        labelText: 'Email',
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1A371F), width: 2.5),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.blue, width: 1.5),
+        ),
+      ),
+      keyboardType: TextInputType.emailAddress,
+    );
+  }
+
+  Widget _buildPasswordField() {
+    return TextField(
+      controller: _pwdCtrl,
+      obscureText: _obscure,
+      decoration: InputDecoration(
+        filled: true,
+        fillColor: AppColors.scaffoldBackground,
+        labelText: 'Mot de passe',
+        focusedBorder: OutlineInputBorder(
+          borderSide: BorderSide(color: Color(0xFF1A371F), width: 2.5),
+          borderRadius: BorderRadius.circular(12),
+        ),
+        border: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(12),
+          borderSide: BorderSide(color: Colors.blue, width: 1.5),
+        ),
+        suffixIcon: IconButton(
+          icon: Icon(
+            _obscure ? Icons.visibility_off : Icons.visibility,
+          ),
+          onPressed: () {
+            setState(() {
+              _obscure = !_obscure;
+            });
+          },
+        ),
+      ),
+    );
+  }
+
+  Widget _buildLoginButton(AuthState state) {
+    return SizedBox(
+      width: double.infinity,
+      height: 50,
+      child: ElevatedButton(
+        onPressed: state is AuthLoading ? null : _onLogin,
+        style: ElevatedButton.styleFrom(
+          backgroundColor: AppColors.primaryLight,
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(12),
+          ),
+        ),
+        child: state is AuthLoading
+            ? const CircularProgressIndicator(color: Colors.white)
+            : const Text(
+          'Se connecter',
+          style: TextStyle(
+            fontSize: 16,
+            color: AppColors.scaffoldBackground,
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRegisterLink() {
+    return TextButton(
+      onPressed: () => context.push('/register'),
+      child: const Text(
+        'Créer un compte',
+        style: TextStyle(fontSize: 16, color: AppColors.primary),
       ),
     );
   }

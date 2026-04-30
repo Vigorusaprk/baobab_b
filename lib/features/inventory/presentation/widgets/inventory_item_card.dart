@@ -1,3 +1,4 @@
+import 'package:baobab_business/core/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import '../../domain/entities/inventory_item.dart';
 
@@ -32,7 +33,7 @@ class InventoryItemCard extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              const Icon(Icons.inventory, size: 40, color: Colors.green),
+              const Icon(Icons.inventory, size: 40, color: AppColors.primaryLight,),
               const SizedBox(height: 8),
               Text(
                 item.name,
