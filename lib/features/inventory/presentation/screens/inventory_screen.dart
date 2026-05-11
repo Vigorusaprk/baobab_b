@@ -2,7 +2,7 @@ import 'package:baobab_business/core/themes/app_colors.dart';
 import 'package:baobab_business/features/inventory/domain/entities/inventory_item.dart';
 import 'package:baobab_business/features/inventory/presentation/widgets/inventory_detail_screen.dart';
 import 'package:baobab_business/features/inventory/presentation/widgets/inventory_item_card.dart';
-import 'package:baobab_business/features/dashboard/presentation/widgets/sales_pie_chart.dart';
+import 'package:baobab_business/features/dashboard/presentation/widgets/for_mobile/sales_pie_chart.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -14,16 +14,16 @@ class InventoryScreen extends StatelessWidget {
   const InventoryScreen({super.key, required this.businessId});
 
   List<ProductSalesData> _buildSalesData(List<InventoryItem> items) {
-    return items
-        .where((item) => item.soldQuantity > 0)
-        .map((item) {
+    print('Données brutes des items : $items');
+    final filteredItems = items.where((item) => item.soldQuantity > 0).toList();
+    print('Items filtrés (vendus) : $filteredItems');
+    return filteredItems.map((item) {
       final salesAmount = item.price * item.soldQuantity;
       return ProductSalesData(
         productName: item.name,
         salesAmount: salesAmount,
       );
-    })
-        .toList();
+    }).toList();
   }
 
   @override
@@ -65,7 +65,10 @@ class InventoryScreen extends StatelessWidget {
                       }
                       if (state is InventoryLoaded) {
                         final salesData = _buildSalesData(state.items);
+                        print('Données brutes : \\${state.items}');
+                        print('Données transformées : \\${salesData}');
                         final totalSales = salesData.fold(0.0, (sum, item) => sum + item.salesAmount);
+                        print('Total des ventes : \\${totalSales}');
 
                         return SingleChildScrollView(
                           padding: const EdgeInsets.all(12),

@@ -21,6 +21,7 @@ import 'package:baobab_business/features/dashboard/domain/repositories/customer_
 import 'package:baobab_business/features/dashboard/domain/repositories/dashboard_repository.dart';
 import 'package:baobab_business/features/dashboard/domain/usecases/get_dashboard_stats.dart';
 import 'package:baobab_business/features/dashboard/domain/usecases/get_product_sales.dart';
+import 'package:baobab_business/features/dashboard/domain/usecases/get_recent_orders.dart';
 import 'package:baobab_business/features/dashboard/presentation/bloc/customer_bloc.dart';
 import 'package:baobab_business/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:baobab_business/features/inventory/data/data_sources/remote_datasource/inventory_remote_datasource.dart';
@@ -46,7 +47,8 @@ Future<void> init() async {
   final prefs = await SharedPreferences.getInstance();
   sl.registerLazySingleton(() => prefs);
   sl.registerLazySingleton<Dio>(() => DioClient.getDio());
-  //Business
+
+  // Business
   sl.registerLazySingleton<BusinessRemoteDataSource>(
         () => BusinessRemoteDataSourceImpl(dio: sl()),
   );
@@ -71,11 +73,20 @@ Future<void> init() async {
   sl.registerLazySingleton<CustomerRepository>(() => CustomerRepositoryImpl(remoteDataSource: sl()));
   sl.registerFactory<CustomerBloc>(() => CustomerBloc(repository: sl()));
 
-  // Dashboard
+  // Dashboard (dépendances)
   sl.registerLazySingleton<DashboardRemoteDataSource>(() => DashboardRemoteDataSourceImpl(dio: sl()));
   sl.registerLazySingleton<DashboardRepository>(() => DashboardRepositoryImpl(remoteDataSource: sl()));
-  sl.registerLazySingleton(() => GetDashboardStats(sl()));
-  sl.registerFactory(() => DashboardBloc(getDashboardStats: sl(), getProductSales: sl()));
+  sl.registerLazySingleton(() => GetDashboardStats(sl<DashboardRepository>()));
+  sl.registerLazySingleton(() => GetProductSales(sl<DashboardRepository>())); // ✅ Enregistré avant DashboardBloc
+
+  // Dashboard Bloc (utilise les deux use cases)
+  sl.registerFactory(() => DashboardBloc(
+    getDashboardStats: sl<GetDashboardStats>(),
+    getProductSales: sl<GetProductSales>(),
+    getRecentOrders: sl<GetRecentOrders>(),
+  ));
+  sl.registerLazySingleton(() => GetRecentOrders(sl<DashboardRepository>()));
+
 
   // Inventory
   sl.registerLazySingleton<InventoryRemoteDataSource>(() => InventoryRemoteDataSourceImpl(dio: sl()));
@@ -100,16 +111,4 @@ Future<void> init() async {
     getBookings: sl(),
     updateBookingStatus: sl(),
   ));
-
-  // Dans la fonction configureDependencies()
-  sl.registerLazySingleton<GetProductSales>(
-        () => GetProductSales(sl<DashboardRepository>()),
-  );
-
-  sl.registerFactory<DashboardBloc>(
-        () => DashboardBloc(
-      getDashboardStats: sl<GetDashboardStats>(),
-      getProductSales: sl<GetProductSales>(),
-    ),
-  );
 }

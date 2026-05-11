@@ -9,7 +9,22 @@ abstract class CustomerRemoteDataSource {
 
 class CustomerRemoteDataSourceImpl implements CustomerRemoteDataSource {
   final Dio dio;
-  CustomerRemoteDataSourceImpl({required this.dio});
+  CustomerRemoteDataSourceImpl({required this.dio}) {
+    dio.interceptors.add(InterceptorsWrapper(
+      onRequest: (options, handler) {
+        print('Requête : ${options.method} ${options.uri}');
+        handler.next(options);
+      },
+      onResponse: (response, handler) {
+        print('Réponse : ${response.statusCode} ${response.data}');
+        handler.next(response);
+      },
+      onError: (DioError e, handler) {
+        print('Erreur : ${e.response?.statusCode} ${e.message}');
+        handler.next(e);
+      },
+    ));
+  }
 
   @override
   Future<List<CustomerModel>> getCustomers(String businessId, {int page = 1, int limit = 20}) async {

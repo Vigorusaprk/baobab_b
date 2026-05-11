@@ -1,7 +1,8 @@
+import 'package:baobab_business/core/themes/app_colors.dart';
 import 'package:baobab_business/core/until/variation_helper.dart';
 import 'package:baobab_business/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:baobab_business/features/dashboard/presentation/bloc/dashboard_bloc.dart';
-import 'package:baobab_business/features/dashboard/presentation/widgets/animated_trend_indicator.dart';
+import 'package:baobab_business/features/dashboard/presentation/widgets/for_mobile/animated_trend_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -86,7 +87,6 @@ class OtherInfoSection extends StatelessWidget {
               'Commandes',
               stats.todayOrders.toString(),
               Icons.shopping_cart,
-              Colors.blue,
               'vs hier',
               ordersVar,
             ),
@@ -94,7 +94,6 @@ class OtherInfoSection extends StatelessWidget {
               'Réservations',
               stats.todayReservations.toString(),
               Icons.calendar_today,
-              Colors.orange,
               'vs hier',
               reservationsVar,
             ),
@@ -102,7 +101,6 @@ class OtherInfoSection extends StatelessWidget {
               'Commandes en attente',
               stats.pendingOrders.toString(),
               Icons.pending_actions,
-              Colors.red,
               'en cours',
               null,
             ),
@@ -110,7 +108,6 @@ class OtherInfoSection extends StatelessWidget {
               'Réservations en attente',
               stats.pendingReservations.toString(),
               Icons.pending,
-              Colors.purple,
               'en cours',
               null,
             ),
@@ -124,61 +121,68 @@ class OtherInfoSection extends StatelessWidget {
     final ordersVar = computeVariation(stats.todayOrders, stats.previousTodayOrders);
     final reservationsVar = computeVariation(stats.todayReservations, stats.previousTodayReservations);
 
+    // Calcul d’une largeur adaptative pour chaque carte (20% de l’écran, limitée)
+    final screenWidth = MediaQuery.of(context).size.width;
+    double cardWidth = screenWidth * 0.22;
+    cardWidth = cardWidth.clamp(180.0, 260.0); // Ni trop petite, ni trop grande
+
+    final List<Widget> cards = [
+      _buildStatCard(
+        'Commandes',
+        stats.todayOrders.toString(),
+        Icons.shopping_cart,
+        'par rapport à hier',
+        ordersVar,
+        isTablet: true,
+        width: cardWidth,
+      ),
+
+      SizedBox(width: 25,),
+      _buildStatCard(
+        'Réservations',
+        stats.todayReservations.toString(),
+        Icons.calendar_today,
+        'par rapport à hier',
+        reservationsVar,
+        isTablet: true,
+        width: cardWidth,
+      ),
+
+      SizedBox(width: 25,),
+      _buildStatCard(
+        'Commandes en attente',
+        stats.pendingOrders.toString(),
+        Icons.pending_actions,
+        'à traiter',
+        null,
+        isTablet: true,
+        width: cardWidth,
+      ),
+
+      SizedBox(width: 25,),
+      _buildStatCard(
+        'Réservations en attente',
+        stats.pendingReservations.toString(),
+        Icons.pending,
+        'à confirmer',
+        null,
+        isTablet: true,
+        width: cardWidth,
+      ),
+    ];
+
     return RefreshIndicator(
       onRefresh: () async {
         context.read<DashboardBloc>().add(FetchDashboardStats(businessId));
       },
       child: SingleChildScrollView(
+        scrollDirection: Axis.horizontal,
         physics: const AlwaysScrollableScrollPhysics(),
-        child: Column(
-          children: [
-            GridView.count(
-              shrinkWrap: true,
-              physics: const NeverScrollableScrollPhysics(),
-              crossAxisCount: 2,
-              crossAxisSpacing: 5,
-              mainAxisSpacing: 10,
-              childAspectRatio: 1.8,
-              children: [
-                _buildStatCard(
-                  'Commandes',
-                  stats.todayOrders.toString(),
-                  Icons.shopping_cart,
-                  Colors.blue,
-                  'par rapport à hier',
-                  ordersVar,
-                  isTablet: true,
-                ),
-                _buildStatCard(
-                  'Réservations',
-                  stats.todayReservations.toString(),
-                  Icons.calendar_today,
-                  Colors.orange,
-                  'par rapport à hier',
-                  reservationsVar,
-                  isTablet: true,
-                ),
-                _buildStatCard(
-                  'Commandes en attente',
-                  stats.pendingOrders.toString(),
-                  Icons.pending_actions,
-                  Colors.red,
-                  'à traiter',
-                  null,
-                  isTablet: true,
-                ),
-                _buildStatCard(
-                  'Réservations en attente',
-                  stats.pendingReservations.toString(),
-                  Icons.pending,
-                  Colors.purple,
-                  'à confirmer',
-                  null,
-                  isTablet: true,
-                ),
-              ],
-            ),
-          ],
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+        child: Row(
+          mainAxisAlignment: MainAxisAlignment.start,
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: cards,
         ),
       ),
     );
@@ -188,77 +192,95 @@ class OtherInfoSection extends StatelessWidget {
       String title,
       String value,
       IconData icon,
-      Color color,
       String subtitle,
       VariationData? variation, {
         bool isTablet = false,
+        double? width,
       }) {
-    return Card(
-      elevation: isTablet ? 4 : 2,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(isTablet ? 16 : 12)),
-      child: Padding(
-        padding: EdgeInsets.all(isTablet ? 16 : 12),
+    return SizedBox(
+      width: width,
+      child: Card(
+        color: Colors.white,
+        elevation: isTablet ? 4 : 2,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(isTablet ? 16 : 12)),
         child: Column(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Row(
-              children: [
-                Container(
-                  padding: const EdgeInsets.all(6),
-                  decoration: BoxDecoration(
-                    color: color.withOpacity(0.1),
-                    borderRadius: BorderRadius.circular(8),
-                  ),
-                  child: Icon(icon, size: isTablet ? 22 : 20, color: color),
-                ),
-                const SizedBox(width: 8),
-                Expanded(
-                  child: Text(
-                    title,
-                    style: TextStyle(
-                      fontSize: isTablet ? 16 : 14,
-                      fontWeight: FontWeight.w600,
+            Container(
+              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
+              width: double.infinity,
+              decoration: BoxDecoration(
+                color: AppColors.primaryLight,
+                borderRadius: BorderRadius.only(topLeft: Radius.circular(isTablet ? 16 : 12), topRight: Radius.circular(isTablet ? 16 : 12))
+              ),
+              child: Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(6),
+                    decoration: BoxDecoration(
+                      color: AppColors.scaffoldBackground.withOpacity(0.3),
+                      borderRadius: BorderRadius.circular(8),
                     ),
-                    maxLines: 1,
-                    overflow: TextOverflow.ellipsis,
+                    child: Icon(icon, size: isTablet ? 22 : 20, color: AppColors.scaffoldBackground),
                   ),
-                ),
-              ],
-            ),
-            const SizedBox(height: 12),
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.end,
-              children: [
-                Flexible(
-                  child: Text(
-                    value,
-                    style: TextStyle(
-                      fontSize: isTablet ? 28 : 24,
-                      fontWeight: FontWeight.bold,
+                  const SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      title,
+                      style: TextStyle(
+                        fontSize: isTablet ? 16 : 14,
+                        fontWeight: FontWeight.w600,
+                        color: AppColors.scaffoldBackground,
+                      ),
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    overflow: TextOverflow.ellipsis,
-                    softWrap: false,
-                    maxLines: 1,
                   ),
-                ),
-                const SizedBox(width: 8),
-                // ✅ Indicateur animé remplace l'ancien conteneur statique
-                if (variation != null)
-                  AnimatedTrendIndicator(
-                    variation: variation,
-                    isTablet: isTablet,
-                  ),
-              ],
-            ),
-            const SizedBox(height: 4),
-            Text(
-              subtitle,
-              style: TextStyle(
-                fontSize: isTablet ? 13 : 12,
-                color: Colors.grey.shade600,
+                ],
               ),
             ),
+
+            Padding(
+              padding: EdgeInsets.all(isTablet ? 10 : 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  const SizedBox(height: 12),
+                  Row(
+                    crossAxisAlignment: CrossAxisAlignment.end,
+                    children: [
+                      Flexible(
+                        child: Text(
+                          value,
+                          style: TextStyle(
+                            fontSize: isTablet ? 28 : 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                          softWrap: false,
+                          maxLines: 1,
+                        ),
+                      ),
+                      const SizedBox(width: 8),
+                      if (variation != null)
+                        AnimatedTrendIndicator(
+                          variation: variation,
+                          isTablet: isTablet,
+                        ),
+                    ],
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    subtitle,
+                    style: TextStyle(
+                      fontSize: isTablet ? 13 : 12,
+                      color: Colors.grey.shade600,
+                    ),
+                  ),
+                ],
+              ),
+            )
           ],
         ),
       ),

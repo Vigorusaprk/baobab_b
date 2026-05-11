@@ -1,5 +1,7 @@
+import 'package:baobab_business/core/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:fl_chart/fl_chart.dart';
+import 'package:intl/intl.dart';
 
 class ProductSalesData {
   final String productName;
@@ -32,15 +34,24 @@ class SalesPieChart extends StatefulWidget {
 
 class _SalesPieChartState extends State<SalesPieChart> {
   int? _touchedIndex;
+  late final NumberFormat _currencyFormat;
+
+  @override
+  void initState() {
+    super.initState();
+    _currencyFormat = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
+  }
 
   @override
   Widget build(BuildContext context) {
+    print('Données reçues : \\${widget.data}');
+    print('Total des ventes : \\${widget.totalSales}');
     if (widget.isLoading) return _buildLoading();
     if (widget.errorMessage != null) return _buildError();
-    if (widget.data.isEmpty) return _buildEmpty();
+    if (widget.data.isEmpty || widget.totalSales == 0) return _buildEmpty();
 
     return Container(
-      padding: EdgeInsets.all(widget.isTablet ? 20 : 16),
+      padding: EdgeInsets.all(widget.isTablet ? 20 : 20),
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(20),
@@ -64,19 +75,20 @@ class _SalesPieChartState extends State<SalesPieChart> {
                 style: TextStyle(
                   fontSize: widget.isTablet ? 20 : 18,
                   fontWeight: FontWeight.bold,
+                  color: AppColors.primaryLight
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: Colors.blue.shade50,
+                  color: AppColors.primaryLight.withOpacity(0.4),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
-                  'Total: ${widget.totalSales.toStringAsFixed(2)} €',
+                  'Total: ${_currencyFormat.format(widget.totalSales)}',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: Colors.blue.shade700,
+                    color: AppColors.primary,
                     fontSize: widget.isTablet ? 14 : 12,
                   ),
                 ),
@@ -129,6 +141,9 @@ class _SalesPieChartState extends State<SalesPieChart> {
   }
 
   List<PieChartSectionData> _buildSections() {
+    // Protection contre la division par zéro
+    if (widget.totalSales == 0) return [];
+
     final colors = [
       Colors.blue,
       Colors.green,
@@ -145,7 +160,7 @@ class _SalesPieChartState extends State<SalesPieChart> {
     return widget.data.asMap().entries.map((entry) {
       final index = entry.key;
       final item = entry.value;
-      final percentage = item.salesAmount / widget.totalSales * 100;
+      final percentage = (item.salesAmount / widget.totalSales) * 100;
       final isTouched = index == _touchedIndex;
 
       return PieChartSectionData(
@@ -178,6 +193,8 @@ class _SalesPieChartState extends State<SalesPieChart> {
   }
 
   Widget _buildLegend() {
+    if (widget.totalSales == 0) return const SizedBox.shrink();
+
     final colors = [
       Colors.blue,
       Colors.green,
@@ -193,6 +210,7 @@ class _SalesPieChartState extends State<SalesPieChart> {
 
     return ListView.builder(
       shrinkWrap: true,
+      physics: const NeverScrollableScrollPhysics(), // Empêche le scroll inutile
       itemCount: widget.data.length,
       itemBuilder: (context, index) {
         final item = widget.data[index];

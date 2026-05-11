@@ -51,9 +51,10 @@ class AuthRepositoryImpl implements AuthRepository {
     print('🔍 [AUTH_REPO] getCurrentUser appelé');
     final token = prefs.getString(_tokenKey);
     if (token == null) {
-      print('⚠️ [AUTH_REPO] Aucun token trouvé');
-      return Left(ServerFailure('Token absent'));
+      print('❌ [AUTH_REPO] Aucun token trouvé dans SharedPreferences');
+      return Left(ServerFailure('Token is null'));
     }
+    print('✅ [AUTH_REPO] Token récupéré : $token');
     if (JwtHelper.isTokenExpired(token)) {
       print('⏰ [AUTH_REPO] Token expiré, déconnexion');
       await logout();

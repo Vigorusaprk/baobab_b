@@ -1,7 +1,7 @@
 import 'package:baobab_business/core/themes/app_colors.dart';
 import 'package:baobab_business/core/until/variation_helper.dart';
 import 'package:baobab_business/features/dashboard/presentation/bloc/dashboard_bloc.dart';
-import 'package:baobab_business/features/dashboard/presentation/widgets/animated_trend_indicator.dart';
+import 'package:baobab_business/features/dashboard/presentation/widgets/for_mobile/animated_trend_indicator.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
