@@ -7,7 +7,7 @@ import 'package:baobab_business/features/auth/presentation/screens/register_scre
 import 'package:baobab_business/features/bookings/presentation/screens/bookings_screen.dart';
 import 'package:baobab_business/features/dashboard/presentation/screens/dashboard_screen.dart';
 import 'package:baobab_business/features/inventory/presentation/screens/inventory_screen.dart';
-import 'package:baobab_business/features/main_screen.dart';
+import 'package:baobab_business/features/main/presentation/screens/main_screen.dart';
 import 'package:baobab_business/features/profile/presentation/screens/profile_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
