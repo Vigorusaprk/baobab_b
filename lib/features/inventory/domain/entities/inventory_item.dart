@@ -9,6 +9,7 @@ class InventoryItem {
   final String? imageUrl;
   final String? ingredients;
   final int soldQuantity; // ✅ Quantité vendue
+  final int quantity; // Quantité en stock
 
   const InventoryItem({
     required this.id,
@@ -21,5 +22,6 @@ class InventoryItem {
     this.imageUrl,
     this.ingredients,
     this.soldQuantity = 0,
+    this.quantity = 0, // Valeur par défaut
   });
 }
