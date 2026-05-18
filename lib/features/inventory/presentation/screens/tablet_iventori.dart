@@ -208,7 +208,7 @@ class TabletInventory extends StatelessWidget {
               decoration: InputDecoration(
                 hintText: 'Rechercher un produit...',
                 hintStyle: TextStyle(color: Colors.grey[400]),
-                prefixIcon: Icon(Icons.search, color: Colors.grey[400]),
+                prefixIcon: Icon(Icons.search, color:AppColors.primary),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               ),

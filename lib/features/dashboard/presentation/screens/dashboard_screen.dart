@@ -26,7 +26,7 @@ class DashboardScreen extends StatelessWidget {
         builder: (context) {
           final isTablet = MediaQuery.of(context).size.width >= 600;
           return Scaffold(
-            backgroundColor: AppColors.scaffoldBackground,
+            backgroundColor: const Color(0xFFF8F9FA),
             body: BlocBuilder<DashboardBloc, DashboardState>(
               builder: (context, state) {
                 if (state is DashboardLoading) {

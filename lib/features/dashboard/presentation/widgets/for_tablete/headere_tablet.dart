@@ -11,93 +11,79 @@ class HeadereTablet extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = (context.read<AuthBloc>().state as AuthAuthenticated).user;
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        Row(
-          children: [
-            Expanded(
-              child: Container(
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(15),
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 15,
-                      offset: const Offset(0, 5),
+    return Container(
+      padding: const EdgeInsets.all(24),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.10),
+            blurRadius: 20,
+            offset: const Offset(0, 15),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Row(
+            children: [
+              Expanded(
+                  child:  Text("Dashboard", style: TextStyle(fontSize: 35, fontFamily: 'Poppins', fontWeight: FontWeight.bold),),
+              ),
+              Expanded(child: Container(width: double.infinity,)),
+              Expanded(
+                child: Container(
+                  width: 300,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF8F9FA),
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(color: Colors.grey[200]!),
+                  ),
+                  child: TextField(
+                    decoration: InputDecoration(
+                      hintText: 'Rechercher un produit...',
+                      hintStyle: TextStyle(color: Colors.grey[400]),
+                      prefixIcon: Icon(Icons.search, color:AppColors.primary),
+                      border: InputBorder.none,
+                      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                     ),
-                  ],
+                  ),
                 ),
-                padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
+              ),
+              Container(
                 child: Row(
                   children: [
-                    Icon(Icons.search_rounded, color: AppColors.primaryLight, size: 22),
-                    const SizedBox(width: 12),
-                    Expanded(
-                      child: Text(
-                        "Recherché",
-                        style: TextStyle(color: Colors.grey[400], fontSize: 14),
-                      ),
-                    ),
-                    Container(
-                      padding: const EdgeInsets.all(8),
-                      decoration: BoxDecoration(
-                        color: AppColors.primaryLight.withOpacity(0.1),
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      child: const Icon(Icons.tune_rounded, color: AppColors.primaryLight, size: 20),
-                    ),
+                    SizedBox(width: 15,),
+                    Icon(Icons.settings, color: AppColors.primaryLight,),
+                    SizedBox(width: 15,),
+                    Icon(Icons.notifications_rounded,  color: AppColors.primaryLight,),
+                    SizedBox(width: 10,),
+                    _buildProfileImage(user), // ✅ Remplacé CircleAvatar() par l'avatar
                   ],
                 ),
               ),
-            ),
-            Expanded(child: Container(width: double.infinity,)),
-            Container(
-              child: Row(
+            ],
+          ),
+
+          SizedBox(height: 10,),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(user.name, style: TextStyle(fontSize: 20, fontFamily: 'Poppins', ),),
+
+              Row(
                 children: [
-                  Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(AppDimens.BORDER_RADIUS_10),
-                        color: Colors.white,
-                      ),
-                      child: Icon(Icons.settings, color: AppColors.primaryLight,)
-                  ),
-                  SizedBox(width: 15,),
-                  Container(
-                      padding: EdgeInsets.all(10),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(AppDimens.BORDER_RADIUS_10),
-                        color: Colors.white,
-                      ),
-                      child: Icon(Icons.notifications_rounded,  color: AppColors.primaryLight,)
-                  ),
+                  Text("Locolisation, loca", style: TextStyle(color: Colors.grey),),
                   SizedBox(width: 10,),
-                  _buildProfileImage(user), // ✅ Remplacé CircleAvatar() par l'avatar
+                  Icon(Icons.arrow_drop_down_sharp, color: Colors.grey,)
                 ],
               ),
-            ),
-          ],
-        ),
-
-        SizedBox(height: 10,),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text("Bonjour,", style: TextStyle(fontSize: 35, fontFamily: 'Poppins', fontWeight: FontWeight.bold),),
-            Text(user.name, style: TextStyle(fontSize: 20, fontFamily: 'Poppins', ),),
-
-            Row(
-              children: [
-                Text("Locolisation, loca", style: TextStyle(color: Colors.grey),),
-                SizedBox(width: 10,),
-                Icon(Icons.arrow_drop_down_sharp, color: Colors.grey,)
-              ],
-            ),
-          ],
-        )
-      ],
+            ],
+          )
+        ],
+      ),
     );
   }
 

@@ -207,76 +207,61 @@ class OtherInfoSection extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Container(
-              padding: EdgeInsets.symmetric(horizontal: 5, vertical: 5),
-              width: double.infinity,
-              decoration: BoxDecoration(
-                color: AppColors.primaryLight,
-                borderRadius: BorderRadius.only(topLeft: Radius.circular(isTablet ? 16 : 12), topRight: Radius.circular(isTablet ? 16 : 12))
-              ),
-              child: Row(
-                children: [
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      color: AppColors.scaffoldBackground.withOpacity(0.3),
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    child: Icon(icon, size: isTablet ? 22 : 20, color: AppColors.scaffoldBackground),
-                  ),
-                  const SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      title,
-                      style: TextStyle(
-                        fontSize: isTablet ? 16 : 14,
-                        fontWeight: FontWeight.w600,
-                        color: AppColors.scaffoldBackground,
-                      ),
-                      maxLines: 1,
-                      overflow: TextOverflow.ellipsis,
-                    ),
-                  ),
-                ],
-              ),
-            ),
 
             Padding(
               padding: EdgeInsets.all(isTablet ? 10 : 12),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  const SizedBox(height: 12),
-                  Row(
+                  Column(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
-                      Flexible(
-                        child: Text(
-                          value,
-                          style: TextStyle(
-                            fontSize: isTablet ? 28 : 24,
-                            fontWeight: FontWeight.bold,
+                      Row(
+                        children: [
+                          Container(
+                            padding: const EdgeInsets.all(15),
+                            decoration: BoxDecoration(
+                              color: AppColors.primary.withOpacity(0.3),
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(icon, size: isTablet ? 25 : 20, color: AppColors.primary),
                           ),
-                          overflow: TextOverflow.ellipsis,
-                          softWrap: false,
-                          maxLines: 1,
-                        ),
+                          SizedBox(width: 8,),
+                          Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Row(
+                                children: [
+                                  Text(
+                                    value,
+                                    style: TextStyle(
+                                      fontSize: isTablet ? 28 : 24,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                    overflow: TextOverflow.ellipsis,
+                                    softWrap: false,
+                                    maxLines: 1,
+                                  ),
+                                  const SizedBox(width: 8),
+                                  if (variation != null)
+                                    AnimatedTrendIndicator(
+                                      variation: variation,
+                                      isTablet: isTablet,
+                                    ),
+                                ],
+                              ),
+                              Text(
+                                subtitle,
+                                style: TextStyle(
+                                  fontSize: isTablet ? 13 : 12,
+                                  color: Colors.grey.shade600,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ],
                       ),
-                      const SizedBox(width: 8),
-                      if (variation != null)
-                        AnimatedTrendIndicator(
-                          variation: variation,
-                          isTablet: isTablet,
-                        ),
                     ],
-                  ),
-                  const SizedBox(height: 4),
-                  Text(
-                    subtitle,
-                    style: TextStyle(
-                      fontSize: isTablet ? 13 : 12,
-                      color: Colors.grey.shade600,
-                    ),
                   ),
                 ],
               ),
