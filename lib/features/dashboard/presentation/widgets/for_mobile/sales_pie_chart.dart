@@ -75,20 +75,20 @@ class _SalesPieChartState extends State<SalesPieChart> {
                 style: TextStyle(
                   fontSize: widget.isTablet ? 20 : 18,
                   fontWeight: FontWeight.bold,
-                  color: AppColors.primaryLight
+                  color: AppColors.secondaryLight
                 ),
               ),
               Container(
                 padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                 decoration: BoxDecoration(
-                  color: AppColors.primaryLight.withOpacity(0.4),
+                  color: AppColors.secondaryLight.withOpacity(0.4),
                   borderRadius: BorderRadius.circular(20),
                 ),
                 child: Text(
                   'Total: ${_currencyFormat.format(widget.totalSales)}',
                   style: TextStyle(
                     fontWeight: FontWeight.w600,
-                    color: AppColors.primary,
+                    color: AppColors.secondaryLight,
                     fontSize: widget.isTablet ? 14 : 12,
                   ),
                 ),

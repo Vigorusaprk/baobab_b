@@ -28,7 +28,7 @@ class InventoryScreen extends StatelessWidget {
                 context,
                 MaterialPageRoute(builder: (_) => AddEditItemScreen(businessId: businessId)),
               ),
-              backgroundColor: AppColors.primary, // Jaune comme le bouton "Add New Menu"
+              backgroundColor: AppColors.secondary, // Jaune comme le bouton "Add New Menu"
               icon: const Icon(Icons.add, color: Colors.white),
               label: const Text(
                 'Ajouter',

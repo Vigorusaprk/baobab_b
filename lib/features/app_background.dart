@@ -17,8 +17,8 @@ class authBackground extends StatelessWidget {
           decoration: BoxDecoration(
             gradient: LinearGradient(
               colors: [
-                AppColors.primaryLight ,
-                AppColors.scaffoldBackground,
+                AppColors.primary ,
+                AppColors.primaryDark,
               ],
               begin: Alignment.topLeft,
               end: Alignment.bottomRight,
@@ -30,12 +30,12 @@ class authBackground extends StatelessWidget {
         Positioned(
           top: -80,
           left: -80,
-          child: _circle(200, AppColors.scaffoldBackground),
+          child: _circle(200, AppColors.secondaryLight),
         ),
         Positioned(
           bottom: -80,
           right: -80,
-          child: _circle(200, AppColors.primaryLight),
+          child: _circle(200, AppColors.secondaryDark),
         ),
 
         // 🔹 Blur GLOBAL

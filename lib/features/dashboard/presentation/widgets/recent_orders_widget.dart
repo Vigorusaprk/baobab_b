@@ -18,24 +18,24 @@ class RecentOrdersWidget extends StatelessWidget {
               padding: EdgeInsets.symmetric(horizontal: 10, vertical: 10),
               decoration: BoxDecoration(
                 borderRadius: BorderRadius.only(topRight: Radius.circular(12), topLeft: Radius.circular(12),),
-                color: AppColors.primaryLight,
+                color: AppColors.secondary,
               ),
               child: Row(
                 children: [
                   Container(
                     padding: EdgeInsets.all(10),
                     decoration: BoxDecoration(
-                        color: AppColors.scaffoldBackground.withOpacity(0.5),
+                        color: AppColors.primaryLight.withOpacity(0.5),
                         borderRadius: BorderRadius.all(Radius.circular(10))
                     ),
                     child: Icon(
                         Icons.inventory_outlined,
-                        color: AppColors.scaffoldBackground, size: 20
+                        color: AppColors.primary, size: 20
                     ),
                   ),
 
                   SizedBox(width: 8),
-                  Text('Dernières commandes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.scaffoldBackground),
+                  Text('Dernières commandes', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16, color: AppColors.primaryLight),
                   ),
                 ],
               )

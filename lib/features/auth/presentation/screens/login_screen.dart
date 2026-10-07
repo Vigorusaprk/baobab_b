@@ -112,69 +112,49 @@ class _LoginScreenState extends State<LoginScreen> {
     return authBackground(
       child: Scaffold(
         backgroundColor: Colors.transparent,
-        body: Row(
+        body: Column(
           children: [
-            // Partie gauche : illustration / branding
-            Expanded(
-              flex: 1,
-              child: Container(
-                color: AppColors.primaryDark,
-                child: Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.business,
-                        size: 100,
-                        color: AppColors.scaffoldBackground,
-                      ),
-                      const SizedBox(height: 20),
-                      Text(
-                        'Baobab Business',
-                        style: TextStyle(
-                          fontSize: 28,
-                          fontWeight: FontWeight.bold,
-                          color: AppColors.scaffoldBackground,
+            Center(
+              child: SingleChildScrollView(
+                padding: const EdgeInsets.symmetric(horizontal: 350, vertical: 50),
+                child: _buildBlocConsumer(
+                  builder: (context, state) {
+                    return BackdropFilter(
+                      filter: ImageFilter.blur(sigmaX: 15, sigmaY: 15),
+                      child: Container(
+                        padding: const EdgeInsets.all(50),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(28),
+                          gradient: LinearGradient(
+                            colors: [AppColors.secondaryLight.withOpacity(0.5), AppColors.primaryDark.withOpacity(0.5)],
+                            transform: GradientRotation(2),
+                          ),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.05),
+                              blurRadius: 20,
+                              offset: const Offset(0, 10),
+                            ),
+                          ],
+                          border: Border.all(width: 3.5, color: AppColors.primaryDark),
+                        ),
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            _buildTabletHeader(),
+                            const SizedBox(height: 40),
+                            _buildEmailField(),
+                            const SizedBox(height: 20),
+                            _buildPasswordField(),
+                            const SizedBox(height: 30),
+                            _buildLoginButton(state),
+                            const SizedBox(height: 20),
+                            _buildRegisterLink(),
+                          ],
                         ),
                       ),
-                      const SizedBox(height: 10),
-                      Text(
-                        'Gérez votre activité en toute simplicité',
-                        textAlign: TextAlign.center,
-                        style: TextStyle(
-                          fontSize: 16,
-                          color: AppColors.scaffoldBackground.withOpacity(0.9),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-            // Partie droite : formulaire
-            Expanded(
-              flex: 1,
-              child: Center(
-                child: SingleChildScrollView(
-                  padding: const EdgeInsets.all(40),
-                  child: _buildBlocConsumer(
-                    builder: (context, state) {
-                      return Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          _buildTabletHeader(),
-                          const SizedBox(height: 40),
-                          _buildEmailField(),
-                          const SizedBox(height: 20),
-                          _buildPasswordField(),
-                          const SizedBox(height: 30),
-                          _buildLoginButton(state),
-                          const SizedBox(height: 20),
-                          _buildRegisterLink(),
-                        ],
-                      );
-                    },
-                  ),
+                    );
+                  },
                 ),
               ),
             ),
@@ -244,7 +224,7 @@ class _LoginScreenState extends State<LoginScreen> {
         Icon(
           Icons.account_circle,
           size: 80,
-          color: AppColors.primaryDark,
+          color: AppColors.primary,
         ),
         const SizedBox(height: 16),
         Text(
@@ -252,7 +232,7 @@ class _LoginScreenState extends State<LoginScreen> {
           style: TextStyle(
             fontSize: 28,
             fontWeight: FontWeight.bold,
-            color: AppColors.primaryDark,
+            color: AppColors.primary,
           ),
         ),
         const SizedBox(height: 8),
@@ -324,7 +304,7 @@ class _LoginScreenState extends State<LoginScreen> {
       child: ElevatedButton(
         onPressed: state is AuthLoading ? null : _onLogin,
         style: ElevatedButton.styleFrom(
-          backgroundColor: AppColors.primaryLight,
+          backgroundColor: AppColors.secondary,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -347,7 +327,7 @@ class _LoginScreenState extends State<LoginScreen> {
       onPressed: () => context.push('/register'),
       child: const Text(
         'Créer un compte',
-        style: TextStyle(fontSize: 16, color: AppColors.primary),
+        style: TextStyle(fontSize: 16, color: AppColors.secondary),
       ),
     );
   }

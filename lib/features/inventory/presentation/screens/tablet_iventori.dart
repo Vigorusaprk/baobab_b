@@ -146,7 +146,7 @@ class TabletInventory extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(24),
       decoration: BoxDecoration(
-        color: Colors.white,
+        color: AppColors.scaffoldBackground,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(
@@ -164,12 +164,12 @@ class TabletInventory extends StatelessWidget {
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
-                  color: AppColors.primary.withOpacity(0.15),
+                  color: AppColors.secondaryLight.withOpacity(0.15),
                   borderRadius: BorderRadius.circular(16),
                 ),
                 child: Icon(
                   Icons.inventory_2,
-                  color: AppColors.primary,
+                  color: AppColors.secondary,
                   size: 28,
                 ),
               ),
@@ -207,8 +207,8 @@ class TabletInventory extends StatelessWidget {
             child: TextField(
               decoration: InputDecoration(
                 hintText: 'Rechercher un produit...',
-                hintStyle: TextStyle(color: Colors.grey[400]),
-                prefixIcon: Icon(Icons.search, color:AppColors.primary),
+                hintStyle: TextStyle(color: AppColors.secondaryLight),
+                prefixIcon: Icon(Icons.search, color:AppColors.secondaryLight),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
               ),
@@ -228,7 +228,7 @@ class TabletInventory extends StatelessWidget {
 
     return Row(
       children: [
-        _buildStatCard('Articles', totalItems.toString(), Icons.inventory_2, AppColors.primary),
+        _buildStatCard('Articles', totalItems.toString(), Icons.inventory_2, AppColors.secondaryLight),
         const SizedBox(width: 16),
         _buildStatCard('Valeur stock', '${totalValue.toStringAsFixed(0)} €', Icons.euro, Colors.blue),
         const SizedBox(width: 16),
@@ -244,7 +244,7 @@ class TabletInventory extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.all(20),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.scaffoldBackground,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -299,7 +299,7 @@ class TabletInventory extends StatelessWidget {
       child: Container(
         padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.scaffoldBackground,
           borderRadius: BorderRadius.circular(12),
           border: Border.all(color: Colors.grey[200]!),
           boxShadow: [
@@ -312,7 +312,7 @@ class TabletInventory extends StatelessWidget {
         ),
         child: Row(
           children: [
-            Icon(icon, size: 18, color: Colors.grey[600]),
+            Icon(icon, size: 18, color: AppColors.secondaryLight),
             const SizedBox(width: 8),
             Text(
               label,
@@ -346,7 +346,7 @@ class TabletInventory extends StatelessWidget {
       },
       child: Container(
         decoration: BoxDecoration(
-          color: Colors.white,
+          color: AppColors.scaffoldBackground,
           borderRadius: BorderRadius.circular(20),
           boxShadow: [
             BoxShadow(
@@ -369,7 +369,7 @@ class TabletInventory extends StatelessWidget {
                 child: item.imageUrl != null && item.imageUrl!.isNotEmpty
                     ? ClipRRect(
                         borderRadius: const BorderRadius.horizontal(left: Radius.circular(20)),
-                        child: Image.network(
+                        child: Image.asset(
                           item.imageUrl!,
                           fit: BoxFit.cover,
                           width: 120,
@@ -457,7 +457,7 @@ class TabletInventory extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,
-                            color: AppColors.primary,
+                            color: AppColors.secondary,
                           ),
                         ),
                         Row(
@@ -466,13 +466,13 @@ class TabletInventory extends StatelessWidget {
                             Container(
                               padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
                               decoration: BoxDecoration(
-                                color:  AppColors.primary.withOpacity(0.1),
+                                color:  AppColors.secondaryLight.withOpacity(0.1),
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Text(
                                 'Vendu: ${item.soldQuantity}',
                                 style: const TextStyle(
-                                  color: AppColors.primary,
+                                  color: AppColors.secondary,
                                   fontSize: 11,
                                   fontWeight: FontWeight.w600,
                                 ),

@@ -101,7 +101,7 @@ class _MainScreenState extends State<MainScreen> {
               onToggleExtended: _toggleExtended,
               leading: leading,
               trailing: trailing,
-              backgroundColor: AppColors.primary,
+              backgroundColor: AppColors.secondary,
               activeColor: AppColors.scaffoldBackground,
               inactiveColor: AppColors.scaffoldBackground,
             ),

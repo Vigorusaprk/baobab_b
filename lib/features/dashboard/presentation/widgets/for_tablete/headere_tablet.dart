@@ -44,8 +44,8 @@ class HeadereTablet extends StatelessWidget {
                   child: TextField(
                     decoration: InputDecoration(
                       hintText: 'Rechercher un produit...',
-                      hintStyle: TextStyle(color: Colors.grey[400]),
-                      prefixIcon: Icon(Icons.search, color:AppColors.primary),
+                      hintStyle: TextStyle(color: AppColors.secondary),
+                      prefixIcon: Icon(Icons.search, color:AppColors.secondary),
                       border: InputBorder.none,
                       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 16),
                     ),

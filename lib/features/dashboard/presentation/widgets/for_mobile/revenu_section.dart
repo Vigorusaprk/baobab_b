@@ -123,7 +123,7 @@ class RevenueSection extends StatelessWidget {
       height: 200,
       width: double.infinity,
       decoration: BoxDecoration(
-        color: AppColors.primaryLight,
+        color: AppColors.secondaryLight,
         borderRadius: BorderRadius.circular(24),
         boxShadow: [
           BoxShadow(

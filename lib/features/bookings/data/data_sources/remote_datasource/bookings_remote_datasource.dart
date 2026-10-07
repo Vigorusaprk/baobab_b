@@ -4,7 +4,7 @@ import 'package:dio/dio.dart';
 
 abstract class BookingsRemoteDataSource {
   Future<List<OrderModel>> getOrders(String businessId, {String? status, int page = 1});
-  Future<List<ReservationModel>> getReservations(String businessId, {String? type, int page = 1});
+  Future<List<ReservationModel>> getReservations(String businessId, {String? status, int page = 1});
   Future<void> updateOrderStatus(String orderId, String status);
   Future<void> updateReservationStatus(String reservationId, String status);
 }
@@ -15,16 +15,30 @@ class BookingsRemoteDataSourceImpl implements BookingsRemoteDataSource {
 
   @override
   Future<List<OrderModel>> getOrders(String businessId, {String? status, int page = 1}) async {
-    final response = await dio.get('$baseUrl/businesses/$businessId/orders', queryParameters: {'page': page, 'status': status});
-    final List data = response.data['orders'];
-    return data.map((j) => OrderModel.fromJson(j)).toList();
+    try {
+      final query = <String, dynamic>{'page': page};
+      if (status != null) query['status'] = status;
+      final response = await dio.get('$baseUrl/businesses/$businessId/orders', queryParameters: query);
+      final List data = response.data['orders'];
+      return data.map((j) => OrderModel.fromJson(j)).toList();
+    } catch (e) {
+      if (e is DioException && e.response?.statusCode == 404) return <OrderModel>[];
+      rethrow;
+    }
   }
 
   @override
-  Future<List<ReservationModel>> getReservations(String businessId, {String? type, int page = 1}) async {
-    final response = await dio.get('$baseUrl/businesses/$businessId/reservations', queryParameters: {'page': page, 'type': type});
-    final List data = response.data['reservations'];
-    return data.map((j) => ReservationModel.fromJson(j)).toList();
+  Future<List<ReservationModel>> getReservations(String businessId, {String? status, int page = 1}) async {
+    try {
+      final query = <String, dynamic>{'page': page};
+      if (status != null) query['status'] = status;
+      final response = await dio.get('$baseUrl/businesses/$businessId/reservations', queryParameters: query);
+      final List data = response.data['reservations'];
+      return data.map((j) => ReservationModel.fromJson(j)).toList();
+    } catch (e) {
+      if (e is DioException && e.response?.statusCode == 404) return <ReservationModel>[];
+      rethrow;
+    }
   }
 
   @override

@@ -221,10 +221,10 @@ class OtherInfoSection extends StatelessWidget {
                           Container(
                             padding: const EdgeInsets.all(15),
                             decoration: BoxDecoration(
-                              color: AppColors.primary.withOpacity(0.3),
+                              color: AppColors.secondaryLight.withOpacity(0.3),
                               borderRadius: BorderRadius.circular(8),
                             ),
-                            child: Icon(icon, size: isTablet ? 25 : 20, color: AppColors.primary),
+                            child: Icon(icon, size: isTablet ? 25 : 20, color: AppColors.secondary),
                           ),
                           SizedBox(width: 8,),
                           Column(

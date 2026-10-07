@@ -39,7 +39,7 @@ class MonthlyIncomeChart extends StatelessWidget {
           children: [
             Text(
               'Revenus mensuels (€)',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.primaryLight),
+              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.secondary),
             ),
             const SizedBox(height: 16),
             SizedBox(
@@ -51,7 +51,7 @@ class MonthlyIncomeChart extends StatelessWidget {
                       spots: spots,
                       isCurved: true,
                       gradient: lineGradient ?? LinearGradient(
-                        colors: [AppColors.primaryLight, AppColors.primaryLight],
+                        colors: [AppColors.secondaryLight, AppColors.secondaryLight],
                         begin: Alignment.centerLeft,
                         end: Alignment.centerRight,
                       ),
@@ -60,7 +60,7 @@ class MonthlyIncomeChart extends StatelessWidget {
                       belowBarData: BarAreaData(
                         show: true,
                         gradient: areaGradient ?? LinearGradient(
-                          colors: [AppColors.primaryLight.withOpacity(0.3), Colors.transparent],
+                          colors: [AppColors.secondary.withOpacity(0.3), Colors.transparent],
                           begin: Alignment.topCenter,
                           end: Alignment.bottomCenter,
                         ),
