@@ -33,12 +33,14 @@ class _AddEditItemScreenState extends State<AddEditItemScreen> {
     }
   }
 
+  String _fulfilment = 'order'; // 'order', 'booking', 'in_store'
+
   @override
   Widget build(BuildContext context) {
     final isTablet = MediaQuery.of(context).size.width >= 600;
     return Scaffold(
       appBar: AppBar(
-        title: Text(widget.item == null ? 'Ajouter un article' : 'Modifier'),
+        title: Text(widget.item == null ? 'Ajouter une offre' : 'Modifier'),
         backgroundColor: Colors.green,
         foregroundColor: Colors.white,
       ),
@@ -56,7 +58,36 @@ class _AddEditItemScreenState extends State<AddEditItemScreen> {
               : null,
           child: SingleChildScrollView(
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // Sélecteur de type d'offre (Modèle unifié Baobab)
+                const Text(
+                  'Type de l\'offre',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+                ),
+                const SizedBox(height: 8),
+                Row(
+                  children: [
+                    ChoiceChip(
+                      label: const Text('À commander'),
+                      selected: _fulfilment == 'order',
+                      onSelected: (val) => setState(() => _fulfilment = 'order'),
+                    ),
+                    const SizedBox(width: 8),
+                    ChoiceChip(
+                      label: const Text('À réserver'),
+                      selected: _fulfilment == 'booking',
+                      onSelected: (val) => setState(() => _fulfilment = 'booking'),
+                    ),
+                    const SizedBox(width: 8),
+                    ChoiceChip(
+                      label: const Text('En boutique'),
+                      selected: _fulfilment == 'in_store',
+                      onSelected: (val) => setState(() => _fulfilment = 'in_store'),
+                    ),
+                  ],
+                ),
+                const SizedBox(height: 16),
                 TextField(controller: _nameCtrl, decoration: const InputDecoration(labelText: 'Nom *')),
                 const SizedBox(height: 12),
                 TextField(
@@ -110,6 +141,7 @@ class _AddEditItemScreenState extends State<AddEditItemScreen> {
       'description': _descriptionCtrl.text.trim(),
       'image_url': _imageUrlCtrl.text.trim(),
       'ingredients': _ingredientsCtrl.text.trim(),
+      'fulfilment': _fulfilment,
     };
     context.read<InventoryBloc>().add(CreateInventoryItemEvent(widget.businessId, data));
     Navigator.pop(context);
