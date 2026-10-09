@@ -56,11 +56,11 @@ class DashboardSupabaseDataSourceImpl implements DashboardRemoteDataSource {
 
     return offers.take(5).map((o) {
       final map = o as Map<String, dynamic>;
+      final qty = (map['sold_quantity'] as num?)?.toInt() ?? 0;
       return ProductSaleModel(
         productName: map['name'] ?? '',
-        soldQuantity: (map['sold_quantity'] as num?)?.toInt() ?? 0,
-        revenue: ((map['price'] as num?)?.toDouble() ?? 0.0) *
-            ((map['sold_quantity'] as num?)?.toInt() ?? 0),
+        quantity: qty,
+        revenue: ((map['price'] as num?)?.toDouble() ?? 0.0) * qty,
       );
     }).toList();
   }

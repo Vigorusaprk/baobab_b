@@ -1,7 +1,7 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../../domain/entities/booking.dart';
-import '../models/order_model.dart';
-import '../models/reservation_model.dart';
+import 'package:baobab_business/features/bookings/domain/entities/booking.dart';
+import 'package:baobab_business/features/bookings/data/models/order_model.dart';
+import 'package:baobab_business/features/bookings/data/models/reservation_model.dart';
 import 'bookings_remote_datasource.dart';
 
 /// Implémentation Supabase pour les réservations et commandes marchandes.

@@ -1,5 +1,5 @@
 import 'package:supabase_flutter/supabase_flutter.dart';
-import '../models/inventory_item_model.dart';
+import 'package:baobab_business/features/inventory/data/models/inventory_item_model.dart';
 import 'inventory_remote_datasource.dart';
 
 /// Implémentation Supabase pour l'inventaire et les offres marchandes.

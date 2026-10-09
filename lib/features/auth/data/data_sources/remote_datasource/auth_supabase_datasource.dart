@@ -1,4 +1,4 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:supabase_flutter/supabase_flutter.dart' hide AuthResponse;
 import '../../models/auth_response.dart';
 import 'auth_remote_datasource.dart';
 
