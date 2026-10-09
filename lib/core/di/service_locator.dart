@@ -7,6 +7,7 @@ import 'package:baobab_business/features/auth/domain/usecases/logout.dart';
 import 'package:baobab_business/features/auth/domain/usecases/register.dart';
 import 'package:baobab_business/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:baobab_business/features/bookings/data/data_sources/remote_datasource/bookings_remote_datasource.dart';
+import 'package:baobab_business/features/bookings/data/data_sources/remote_datasource/bookings_supabase_datasource.dart';
 import 'package:baobab_business/features/bookings/domain/usecases/get_bookings.dart';
 import 'package:baobab_business/features/bookings/domain/usecases/update_booking_status.dart';
 import 'package:baobab_business/features/business/data/data_sources/remote_datasource/business_remote_datasource.dart';
@@ -103,8 +104,8 @@ Future<void> init() async {
     createInventoryItem: sl(),
   ));
 
-  // Bookings
-  sl.registerLazySingleton<BookingsRemoteDataSource>(() => BookingsRemoteDataSourceImpl(dio: sl()));
+  // Bookings (connecté à Supabase)
+  sl.registerLazySingleton<BookingsRemoteDataSource>(() => BookingsSupabaseDataSourceImpl());
   sl.registerLazySingleton<BookingsRepository>(() => BookingsRepositoryImpl(remoteDataSource: sl()));
   sl.registerLazySingleton(() => GetBookings(sl()));
   sl.registerLazySingleton(() => UpdateBookingStatus(sl()));
