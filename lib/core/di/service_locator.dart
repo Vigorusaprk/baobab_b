@@ -1,4 +1,5 @@
 import 'package:baobab_business/features/auth/data/data_sources/remote_datasource/auth_remote_datasource.dart';
+import 'package:baobab_business/features/auth/data/data_sources/remote_datasource/auth_supabase_datasource.dart';
 import 'package:baobab_business/features/auth/data/repositories/auth_repository_impl.dart';
 import 'package:baobab_business/features/auth/domain/repositories/auth_repository.dart';
 import 'package:baobab_business/features/auth/domain/usecases/check_auth_status.dart';
@@ -11,6 +12,7 @@ import 'package:baobab_business/features/bookings/data/data_sources/remote_datas
 import 'package:baobab_business/features/bookings/domain/usecases/get_bookings.dart';
 import 'package:baobab_business/features/bookings/domain/usecases/update_booking_status.dart';
 import 'package:baobab_business/features/business/data/data_sources/remote_datasource/business_remote_datasource.dart';
+import 'package:baobab_business/features/business/data/data_sources/remote_datasource/business_supabase_datasource.dart';
 import 'package:baobab_business/features/business/data/repositories/business_repository_impl.dart';
 import 'package:baobab_business/features/business/domain/repositories/business_repository.dart';
 import 'package:baobab_business/features/business/presentation/bloc/business_bloc.dart';
@@ -48,12 +50,9 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   final prefs = await SharedPreferences.getInstance();
-  sl.registerLazySingleton(() => prefs);
-  sl.registerLazySingleton<Dio>(() => DioClient.getDio());
-
-  // Business
+  // Business (connecté à Supabase)
   sl.registerLazySingleton<BusinessRemoteDataSource>(
-        () => BusinessRemoteDataSourceImpl(dio: sl()),
+        () => BusinessSupabaseDataSourceImpl(),
   );
   sl.registerLazySingleton<BusinessRepository>(
         () => BusinessRepositoryImpl(remoteDataSource: sl()),
@@ -62,8 +61,8 @@ Future<void> init() async {
         () => BusinessCubit(repository: sl()),
   );
 
-  // Auth
-  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthRemoteDataSourceImpl(dio: sl()));
+  // Auth (connecté à Supabase)
+  sl.registerLazySingleton<AuthRemoteDataSource>(() => AuthSupabaseDataSourceImpl());
   sl.registerLazySingleton<AuthRepository>(() => AuthRepositoryImpl(remoteDataSource: sl(), prefs: sl()));
   sl.registerLazySingleton(() => Login(sl()));
   sl.registerLazySingleton(() => CheckAuthStatus(sl()));
