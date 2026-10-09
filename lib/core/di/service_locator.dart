@@ -16,6 +16,7 @@ import 'package:baobab_business/features/business/domain/repositories/business_r
 import 'package:baobab_business/features/business/presentation/bloc/business_bloc.dart';
 import 'package:baobab_business/features/dashboard/data/data_sources/remote_datasource/customer_remote_datasource.dart';
 import 'package:baobab_business/features/dashboard/data/data_sources/remote_datasource/dashboard_remote_datasource.dart';
+import 'package:baobab_business/features/dashboard/data/data_sources/remote_datasource/dashboard_supabase_datasource.dart';
 import 'package:baobab_business/features/dashboard/data/repositories/customer_repository_impl.dart';
 import 'package:baobab_business/features/dashboard/data/repositories/dashboard_repository_impl.dart';
 import 'package:baobab_business/features/dashboard/domain/repositories/customer_repository.dart';
@@ -75,8 +76,8 @@ Future<void> init() async {
   sl.registerLazySingleton<CustomerRepository>(() => CustomerRepositoryImpl(remoteDataSource: sl()));
   sl.registerFactory<CustomerBloc>(() => CustomerBloc(repository: sl()));
 
-  // Dashboard (dépendances)
-  sl.registerLazySingleton<DashboardRemoteDataSource>(() => DashboardRemoteDataSourceImpl(dio: sl()));
+  // Dashboard (connecté à Supabase)
+  sl.registerLazySingleton<DashboardRemoteDataSource>(() => DashboardSupabaseDataSourceImpl());
   sl.registerLazySingleton<DashboardRepository>(() => DashboardRepositoryImpl(remoteDataSource: sl()));
   sl.registerLazySingleton(() => GetDashboardStats(sl<DashboardRepository>()));
   sl.registerLazySingleton(() => GetProductSales(sl<DashboardRepository>())); // ✅ Enregistré avant DashboardBloc
