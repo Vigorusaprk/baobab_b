@@ -25,6 +25,7 @@ import 'package:baobab_business/features/dashboard/domain/usecases/get_recent_or
 import 'package:baobab_business/features/dashboard/presentation/bloc/customer_bloc.dart';
 import 'package:baobab_business/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:baobab_business/features/inventory/data/data_sources/remote_datasource/inventory_remote_datasource.dart';
+import 'package:baobab_business/features/inventory/data/data_sources/remote_datasource/inventory_supabase_datasource.dart';
 import 'package:baobab_business/features/inventory/data/repositories/inventory_repository_impl.dart';
 import 'package:baobab_business/features/inventory/domain/repositories/inventory_repository.dart';
 import 'package:baobab_business/features/inventory/domain/usecases/create_inventory_item.dart';
@@ -88,8 +89,8 @@ Future<void> init() async {
   sl.registerLazySingleton(() => GetRecentOrders(sl<DashboardRepository>()));
 
 
-  // Inventory
-  sl.registerLazySingleton<InventoryRemoteDataSource>(() => InventoryRemoteDataSourceImpl(dio: sl()));
+  // Inventory (connecté à Supabase)
+  sl.registerLazySingleton<InventoryRemoteDataSource>(() => InventorySupabaseDataSourceImpl());
   sl.registerLazySingleton<InventoryRepository>(() => InventoryRepositoryImpl(remoteDataSource: sl()));
   sl.registerLazySingleton(() => GetInventory(sl()));
   sl.registerLazySingleton(() => UpdateItemAvailability(sl()));
