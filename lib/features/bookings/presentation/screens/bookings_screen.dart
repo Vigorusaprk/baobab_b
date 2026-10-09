@@ -1,5 +1,6 @@
 import 'package:baobab_business/core/themes/app_colors.dart';
 import 'package:baobab_business/features/bookings/presentation/widgets/order_receipt_card.dart';
+import 'package:baobab_business/features/bookings/presentation/widgets/merchant_agenda.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:get_it/get_it.dart';
@@ -28,44 +29,47 @@ class BookingsScreen extends StatelessWidget {
               Expanded(
                 child: BlocBuilder<BookingsBloc, BookingsState>(
                   builder: (context, state) {
-                    if (state is BookingsLoading)
+                    if (state is BookingsLoading) {
                       return const Center(child: CircularProgressIndicator());
+                    }
                     if (state is BookingsLoaded) {
-                      return GridView.builder(
-                        itemCount: state.bookings.length,
-                        shrinkWrap: true, // Permet de l'intégrer facilement dans un scroll global si besoin
-                        physics: const BouncingScrollPhysics(), // Effet de défilement fluide
-                        padding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 12.0,
-                        ),
-                        gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                          crossAxisCount: 3,          // Nombre de colonnes (côte à côte)
-                          crossAxisSpacing: 14.0,     // Espace horizontal entre les cartes
-                          mainAxisSpacing: 14.0,      // Espace vertical entre les lignes
-                          childAspectRatio: 0.82,     // Rapport Largeur/Hauteur de la carte (ajuste si le texte est coupé)
-                        ),
-                        itemBuilder: (context, i) {
-                          final b = state.bookings[i];
+                      final orders = state.bookings.where((b) => b.type == 'order').toList();
+                      final reservations = state.bookings.where((b) => b.type != 'order').toList();
 
-                          return InkWell(
-                            borderRadius: BorderRadius.circular(24), // S'aligne parfaitement sur l'arrondi du widget
-                            onTap: () => Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => BookingDetailScreen(
-                                  booking: b,
-                                  businessId: businessId,
-                                ),
+                      return DefaultTabController(
+                        length: 3,
+                        child: Column(
+                          children: [
+                            TabBar(
+                              labelColor: Theme.of(context).primaryColor,
+                              unselectedLabelColor: Colors.grey.shade600,
+                              indicatorColor: Theme.of(context).primaryColor,
+                              tabs: [
+                                Tab(text: 'Commandes (${orders.length})'),
+                                Tab(text: 'Réservations (${reservations.length})'),
+                                const Tab(text: 'Agenda'),
+                              ],
+                            ),
+                            const SizedBox(height: 12),
+                            Expanded(
+                              child: TabBarView(
+                                children: [
+                                  // Onglet Commandes
+                                  _buildBookingsGrid(context, orders, businessId),
+                                  // Onglet Réservations
+                                  _buildBookingsGrid(context, reservations, businessId),
+                                  // Onglet Agenda
+                                  MerchantAgenda(reservations: reservations),
+                                ],
                               ),
                             ),
-                            child: BookingReceiptCard(booking: b),
-                          );
-                        },
+                          ],
+                        ),
                       );
                     }
-                    if (state is BookingsError)
+                    if (state is BookingsError) {
                       return Center(child: Text(state.message));
+                    }
                     return const SizedBox.shrink();
                   },
                 ),
@@ -76,6 +80,43 @@ class BookingsScreen extends StatelessWidget {
       ),
     );
   }
+  Widget _buildBookingsGrid(BuildContext context, List<dynamic> items, String businessId) {
+    if (items.isEmpty) {
+      return const Center(child: Text('Aucun élément'));
+    }
+    return GridView.builder(
+      itemCount: items.length,
+      shrinkWrap: true,
+      physics: const BouncingScrollPhysics(),
+      padding: const EdgeInsets.symmetric(
+        horizontal: 16.0,
+        vertical: 12.0,
+      ),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        crossAxisSpacing: 14.0,
+        mainAxisSpacing: 14.0,
+        childAspectRatio: 0.82,
+      ),
+      itemBuilder: (context, i) {
+        final b = items[i];
+        return InkWell(
+          borderRadius: BorderRadius.circular(24),
+          onTap: () => Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (_) => BookingDetailScreen(
+                booking: b,
+                businessId: businessId,
+              ),
+            ),
+          ),
+          child: BookingReceiptCard(booking: b),
+        );
+      },
+    );
+  }
+
   Widget _buildTabletHeader(BuildContext context) {
     return Container(
       padding: const EdgeInsets.all(24),
