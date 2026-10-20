@@ -50,6 +50,8 @@ final sl = GetIt.instance;
 
 Future<void> init() async {
   final prefs = await SharedPreferences.getInstance();
+  sl.registerLazySingleton<SharedPreferences>(() => prefs);
+
   // Business (connecté à Supabase)
   sl.registerLazySingleton<BusinessRemoteDataSource>(
         () => BusinessSupabaseDataSourceImpl(),
