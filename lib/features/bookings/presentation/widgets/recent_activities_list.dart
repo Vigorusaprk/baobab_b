@@ -75,7 +75,7 @@ class RecentActivitiesList extends StatelessWidget {
                     children: [
                       if (a.amount != null)
                         Text(
-                          '${a.amount!.toStringAsFixed(2)} €',
+                          '${a.amount!.toStringAsFixed(2)} \$',
                           style: const TextStyle(fontWeight: FontWeight.bold),
                         ),
                       Text(

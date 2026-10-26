@@ -17,13 +17,13 @@ class InventoryRepositoryImpl implements InventoryRepository {
   }
 
   @override
-  Future<Either<Failure, void>> updateAvailability(String businessId, int itemId, bool isAvailable) async {
+  Future<Either<Failure, void>> updateAvailability(String businessId, String itemId, bool isAvailable) async {
     try { await remoteDataSource.updateItemAvailability(businessId, itemId, isAvailable); return const Right(null); }
     catch (e) { return Left(ServerFailure(e.toString())); }
   }
 
   @override
-  Future<Either<Failure, void>> updatePrice(String businessId, int itemId, double price) async {
+  Future<Either<Failure, void>> updatePrice(String businessId, String itemId, double price) async {
     try { await remoteDataSource.updateItemPrice(businessId, itemId, price); return const Right(null); }
     catch (e) { return Left(ServerFailure(e.toString())); }
   }
@@ -31,6 +31,12 @@ class InventoryRepositoryImpl implements InventoryRepository {
   @override
   Future<Either<Failure, void>> createItem(String businessId, Map<String, dynamic> data) async {
     try { await remoteDataSource.createItem(businessId, data); return const Right(null); }
+    catch (e) { return Left(ServerFailure(e.toString())); }
+  }
+
+  @override
+  Future<Either<Failure, void>> updateItem(String itemId, Map<String, dynamic> data) async {
+    try { await remoteDataSource.updateItem(itemId, data); return const Right(null); }
     catch (e) { return Left(ServerFailure(e.toString())); }
   }
 }

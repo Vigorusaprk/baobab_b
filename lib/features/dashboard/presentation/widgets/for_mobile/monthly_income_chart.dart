@@ -38,7 +38,7 @@ class MonthlyIncomeChart extends StatelessWidget {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             Text(
-              'Revenus mensuels (€)',
+              'Revenus mensuels (\$)',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.secondary),
             ),
             const SizedBox(height: 16),
@@ -88,7 +88,7 @@ class MonthlyIncomeChart extends StatelessWidget {
                         showTitles: true,
                         reservedSize: 45,
                         getTitlesWidget: (value, meta) {
-                          return Text('${value.toInt()} €', style: const TextStyle(fontSize: 10));
+                          return Text('${value.toInt()} \$', style: const TextStyle(fontSize: 10));
                         },
                       ),
                     ),
@@ -108,7 +108,7 @@ class MonthlyIncomeChart extends StatelessWidget {
                       getTooltipItems: (touchedSpots) {
                         return touchedSpots.map((spot) {
                           return LineTooltipItem(
-                            '${spot.y.toStringAsFixed(2)} €',
+                            '${spot.y.toStringAsFixed(2)} \$',
                             const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
                           );
                         }).toList();

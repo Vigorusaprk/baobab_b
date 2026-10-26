@@ -4,7 +4,6 @@ import 'package:dio/dio.dart';
 
 abstract class AuthRemoteDataSource {
   Future<AuthResponse> login(String email, String password);
-  Future<AuthResponse> register(String name, String email, String password, String phone);
   Future<AuthResponse> getCurrentUser(String token);
 }
 
@@ -29,17 +28,6 @@ class AuthRemoteDataSourceImpl implements AuthRemoteDataSource {
       print('❌ [AUTH_DS] Exception: $e');
       rethrow;
     }
-  }
-
-  @override
-  Future<AuthResponse> register(String name, String email, String password, String phone) async {
-    final response = await dio.post('$baseUrl/auth/signup', data: {
-      'name': name,
-      'email': email,
-      'password': password,
-      'phone': phone,
-    });
-    return AuthResponse.fromJson(response.data);
   }
 
   @override

@@ -1,45 +1,38 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:baobab_business/features/inventory/data/models/inventory_item_model.dart';
+import 'package:baobab_business/core/merchant/merchant_api.dart';
+import 'package:baobab_business/core/merchant/merchant_parsing.dart';
+import 'package:baobab_business/core/merchant/merchant_sales.dart';
+import '../../models/inventory_item_model.dart';
 import 'inventory_remote_datasource.dart';
 
-/// Implémentation Supabase pour l'inventaire et les offres marchandes.
+/// Offres du commerce, via les Edge Functions :
+/// - `get-merchant-space` : lecture du catalogue (clé `offers`).
+/// - `update-offer` : prix et disponibilité.
+/// - `create-offer` : publication d'une nouvelle offre.
 ///
-/// Elle communique avec les Edge Functions Supabase :
-/// - `get-merchant-space` pour récupérer les offres réelles du commerce.
-/// - `update-offer` pour modifier la disponibilité ou le prix.
-/// - `create-offer` pour publier une nouvelle offre.
+/// L'identifiant d'une offre est un UUID : il reste un texte de bout en bout.
 class InventorySupabaseDataSourceImpl implements InventoryRemoteDataSource {
-  final SupabaseClient _supabase;
+  final MerchantApi _api;
 
-  InventorySupabaseDataSourceImpl({SupabaseClient? supabase})
-      : _supabase = supabase ?? Supabase.instance.client;
+  InventorySupabaseDataSourceImpl({MerchantApi? api})
+      : _api = api ?? MerchantApi.instance;
 
   @override
   Future<List<InventoryItemModel>> getInventory(String businessId) async {
-    final response = await _supabase.functions.invoke(
-      'get-merchant-space',
-      method: HttpMethod.get,
-    );
-
-    if (response.status != 200 || response.data == null) {
-      throw Exception('Erreur lors du chargement des offres: ${response.status}');
-    }
-
-    final data = response.data as Map<String, dynamic>;
-    final offers = (data['offers'] as List<dynamic>?) ?? [];
-
-    return offers.map((item) {
-      final map = item as Map<String, dynamic>;
+    final data = await _api.space();
+    // La base n'a pas de « quantité vendue » : on la déduit des commandes.
+    final sold = salesByOffer(asRows(data['orders']));
+    return asRows(data['offers']).map((o) {
+      final id = o['id'].toString();
       return InventoryItemModel(
-        id: (map['id'] is int) ? map['id'] : map['id'].hashCode,
+        id: id,
         businessId: businessId,
-        name: map['name'] ?? '',
-        price: (map['price'] is num) ? (map['price'] as num).toDouble() : 0.0,
-        isAvailable: map['is_active'] == true,
-        category: map['section'],
-        description: map['description'],
-        imageUrl: map['image_url'],
-        soldQuantity: map['sold_quantity'] ?? 0,
+        name: o['name']?.toString() ?? '',
+        price: asDouble(o['price']),
+        isAvailable: o['is_active'] != false,
+        category: o['section']?.toString(),
+        description: o['description']?.toString(),
+        imageUrl: o['image_url']?.toString(),
+        soldQuantity: sold[id]?.quantity ?? 0,
       );
     }).toList();
   }
@@ -47,44 +40,46 @@ class InventorySupabaseDataSourceImpl implements InventoryRemoteDataSource {
   @override
   Future<void> updateItemAvailability(
     String businessId,
-    int itemId,
+    String itemId,
     bool isAvailable,
   ) async {
-    await _supabase.functions.invoke(
-      'update-offer',
-      body: {
-        'offerId': itemId.toString(),
-        'isActive': isAvailable,
-      },
-    );
+    await _api.call('update-offer', {'offerId': itemId, 'isActive': isAvailable});
   }
 
   @override
-  Future<void> updateItemPrice(
-    String businessId,
-    int itemId,
-    double price,
-  ) async {
-    await _supabase.functions.invoke(
-      'update-offer',
-      body: {
-        'offerId': itemId.toString(),
-        'price': price,
-      },
-    );
+  Future<void> updateItemPrice(String businessId, String itemId, double price) async {
+    await _api.call('update-offer', {'offerId': itemId, 'price': price});
+  }
+
+  /// Un champ vide devient null : le serveur l'efface ou l'ignore.
+  String? _clean(Object? v) {
+    final s = v?.toString().trim() ?? '';
+    return s.isEmpty ? null : s;
   }
 
   @override
   Future<void> createItem(String businessId, Map<String, dynamic> data) async {
-    await _supabase.functions.invoke(
-      'create-offer',
-      body: {
-        'name': data['item_name'],
-        'price': data['price'],
-        'section': data['item_category'],
-        'description': data['description'] ?? '',
-        'fulfilment': data['fulfilment'] ?? 'order',
-      },
-    );
+    await _api.call('create-offer', {
+      'name': data['item_name'],
+      'price': data['price'],
+      'section': _clean(data['item_category']),
+      'description': _clean(data['description']),
+      'imageUrl': _clean(data['image_url']),
+      'fulfilment': data['fulfilment'] ?? 'order',
+    });
+  }
+
+  /// Modifie une offre existante. Le type (fulfilment) n'est volontairement
+  /// pas envoyé : le changer efface capacité et créneaux côté serveur.
+  @override
+  Future<void> updateItem(String itemId, Map<String, dynamic> data) async {
+    await _api.call('update-offer', {
+      'offerId': itemId,
+      'name': data['item_name'],
+      'price': data['price'],
+      'section': _clean(data['item_category']),
+      'description': _clean(data['description']),
+      'imageUrl': _clean(data['image_url']),
+    });
   }
 }

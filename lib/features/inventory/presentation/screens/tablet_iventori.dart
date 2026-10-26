@@ -12,7 +12,6 @@ class TabletInventory extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: const Color(0xFFF8F9FA),
       body: Row(
         children: [
           // Sidebar optionnelle (comme dans les dashboards modernes)
@@ -75,12 +74,7 @@ class TabletInventory extends StatelessWidget {
                                   Row(
                                     children: [
                                       // Filtre
-                                      _buildActionButton(
-                                        icon: Icons.filter_list,
-                                        label: 'Filtrer',
-                                        onTap: () {},
-                                      ),
-                                      const SizedBox(width: 12),
+
                                       // Refresh
                                       _buildActionButton(
                                         icon: Icons.refresh,
@@ -230,7 +224,7 @@ class TabletInventory extends StatelessWidget {
       children: [
         _buildStatCard('Articles', totalItems.toString(), Icons.inventory_2, AppColors.secondaryLight),
         const SizedBox(width: 16),
-        _buildStatCard('Valeur stock', '${totalValue.toStringAsFixed(0)} €', Icons.euro, Colors.blue),
+        _buildStatCard('Valeur stock', '${totalValue.toStringAsFixed(0)} \$', Icons.attach_money, Colors.blue),
         const SizedBox(width: 16),
         _buildStatCard('Stock faible', lowStock.toString(), Icons.warning_amber, Colors.red),
         const SizedBox(width: 16),
@@ -453,7 +447,7 @@ class TabletInventory extends StatelessWidget {
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          '${item.price.toStringAsFixed(2)} €',
+                          '${item.price.toStringAsFixed(2)} \$',
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

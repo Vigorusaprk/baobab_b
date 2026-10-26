@@ -3,12 +3,13 @@ import 'package:baobab_business/core/di/service_locator.dart' as di; //[cite: 19
 import 'package:baobab_business/features/auth/presentation/bloc/auth_bloc.dart'; //[cite: 19]
 import 'package:baobab_business/features/auth/presentation/screens/login_screen.dart'; //[cite: 19]
 import 'package:baobab_business/features/auth/presentation/screens/no_business_screen.dart'; //[cite: 19]
-import 'package:baobab_business/features/auth/presentation/screens/register_screen.dart'; //[cite: 19]
+import 'package:baobab_business/features/ads/presentation/screens/ads_screen.dart';
 import 'package:baobab_business/features/bookings/presentation/screens/bookings_screen.dart'; //[cite: 19]
 import 'package:baobab_business/features/dashboard/presentation/screens/dashboard_screen.dart'; //[cite: 19]
 import 'package:baobab_business/features/inventory/presentation/screens/inventory_screen.dart'; //[cite: 19]
 import 'package:baobab_business/features/main/presentation/screens/main_screen.dart'; //[cite: 19]
 import 'package:baobab_business/features/profile/presentation/screens/profile_screen.dart'; //[cite: 19]
+import 'package:baobab_business/features/staff/presentation/screens/staff_screen.dart';
 import 'package:flutter/material.dart'; //[cite: 19]
 import 'package:flutter_bloc/flutter_bloc.dart'; //[cite: 19]
 import 'package:go_router/go_router.dart'; //[cite: 19]
@@ -38,9 +39,9 @@ final GoRouter appRouter = GoRouter(
     print('📍 [ROUTER] Route: ${state.matchedLocation}, AuthState: $authState'); //[cite: 19]
 
     // ✅ CORRECTION : On ne cible plus AuthInitial ici pour éviter l'expulsion au Hot Reload
-    // Non authentifié → rediriger vers login (sauf si déjà sur login/register)[cite: 19]
+    // Non authentifié → rediriger vers login (sauf si déjà sur login)[cite: 19]
     if (authState is AuthUnauthenticated) {
-      final isAuthRoute = state.matchedLocation == '/login' || state.matchedLocation == '/register'; //[cite: 19]
+      final isAuthRoute = state.matchedLocation == '/login'; //[cite: 19]
       if (!isAuthRoute) return '/login'; //[cite: 19]
       return null; //[cite: 19]
     }
@@ -55,7 +56,6 @@ final GoRouter appRouter = GoRouter(
       }
       // Si on est sur une route d'authentification ou /no-business, aller vers /dashboard[cite: 19]
       final isAuthOrNoBiz = state.matchedLocation == '/login' || //[cite: 19]
-          state.matchedLocation == '/register' || //[cite: 19]
           state.matchedLocation == '/no-business'; //[cite: 19]
       if (isAuthOrNoBiz) return '/dashboard'; //[cite: 19]
     }
@@ -64,86 +64,108 @@ final GoRouter appRouter = GoRouter(
     return null; //[cite: 19]
   },
   routes: [
-    // Routes publiques[cite: 19]
+    // Routes publiques
     GoRoute(
       path: '/login',
       name: 'login',
-      builder: (context, state) => const LoginScreen(), //[cite: 19]
-    ),
-    GoRoute(
-      path: '/register',
-      name: 'register',
-      builder: (context, state) => const RegisterScreen(), //[cite: 19]
+      builder: (context, state) => const LoginScreen(),
     ),
     GoRoute(
       path: '/no-business',
       name: 'no-business',
-      builder: (context, state) => const NoBusinessScreen(), //[cite: 19]
+      builder: (context, state) => const NoBusinessScreen(),
     ),
-    // Route principale avec shell[cite: 19]
+    // Route principale avec shell
     StatefulShellRoute.indexedStack(
       builder: (context, state, navigationShell) {
-        // Récupérer le businessId une seule fois ici[cite: 19]
-        final authState = context.read<AuthBloc>().state; //[cite: 19]
-        final businessId = (authState is AuthAuthenticated) ? authState.user.businessId ?? '' : ''; //[cite: 19]
+        final authState = context.read<AuthBloc>().state;
+        final businessId = (authState is AuthAuthenticated) ? authState.user.businessId ?? '' : '';
         return MainScreen(
-          navigationShell: navigationShell, //[cite: 19]
-          businessId: businessId, //[cite: 19]
+          navigationShell: navigationShell,
+          businessId: businessId,
         );
       },
       branches: [
-        // Branche Dashboard[cite: 19]
+        // Branche Dashboard
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: '/dashboard',
               name: 'dashboard',
               builder: (context, state) {
-                final authState = context.read<AuthBloc>().state; //[cite: 19]
-                final businessId = (authState is AuthAuthenticated) ? authState.user.businessId ?? '' : ''; //[cite: 19]
-                return DashboardScreen(businessId: businessId); //[cite: 19]
+                final authState = context.read<AuthBloc>().state;
+                final businessId = (authState is AuthAuthenticated) ? authState.user.businessId ?? '' : '';
+                return DashboardScreen(businessId: businessId);
               },
             ),
           ],
         ),
-        // Branche Stock[cite: 19]
+        // Branche Stock
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: '/inventory',
               name: 'inventory',
               builder: (context, state) {
-                final authState = context.read<AuthBloc>().state; //[cite: 19]
-                final businessId = (authState is AuthAuthenticated) ? authState.user.businessId ?? '' : ''; //[cite: 19]
-                return InventoryScreen(businessId: businessId); //[cite: 19]
+                final authState = context.read<AuthBloc>().state;
+                final businessId = (authState is AuthAuthenticated) ? authState.user.businessId ?? '' : '';
+                return InventoryScreen(businessId: businessId);
               },
             ),
           ],
         ),
-        // Branche Commandes[cite: 19]
+        // Branche Commandes
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: '/bookings',
               name: 'bookings',
               builder: (context, state) {
-                final authState = context.read<AuthBloc>().state; //[cite: 19]
-                final businessId = (authState is AuthAuthenticated) ? authState.user.businessId ?? '' : ''; //[cite: 19]
-                return BookingsScreen(businessId: businessId); //[cite: 19]
+                final authState = context.read<AuthBloc>().state;
+                final businessId = (authState is AuthAuthenticated) ? authState.user.businessId ?? '' : '';
+                return BookingsScreen(businessId: businessId);
               },
             ),
           ],
         ),
-        // Branche Profil[cite: 19]
+        // Branche Équipe (Staff)
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/staff',
+              name: 'staff',
+              builder: (context, state) {
+                final authState = context.read<AuthBloc>().state;
+                final businessId = (authState is AuthAuthenticated) ? authState.user.businessId ?? '' : '';
+                return StaffScreen(businessId: businessId);
+              },
+            ),
+          ],
+        ),
+        // Branche Publicité
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/ads',
+              name: 'ads',
+              builder: (context, state) {
+                final authState = context.read<AuthBloc>().state;
+                final businessId = (authState is AuthAuthenticated) ? authState.user.businessId ?? '' : '';
+                return AdsScreen(businessId: businessId);
+              },
+            ),
+          ],
+        ),
+        // Branche Profil / Boutique
         StatefulShellBranch(
           routes: [
             GoRoute(
               path: '/profile',
               name: 'profile',
               builder: (context, state) {
-                final authState = context.read<AuthBloc>().state; //[cite: 19]
-                final businessId = (authState is AuthAuthenticated) ? authState.user.businessId ?? '' : ''; //[cite: 19]
-                return ProfileScreen(businessId: businessId); //[cite: 19]
+                final authState = context.read<AuthBloc>().state;
+                final businessId = (authState is AuthAuthenticated) ? authState.user.businessId ?? '' : '';
+                return ProfileScreen(businessId: businessId);
               },
             ),
           ],

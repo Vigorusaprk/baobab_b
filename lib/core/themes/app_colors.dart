@@ -16,7 +16,7 @@ class AppColors {
   // --- Fonds de l'application ---
   static const Color scaffoldBackground = Color(0xFFF3EBDD);
   static const Color canvasBackground = Color(0xFFF3EBDD);
-  static const Color surface = Color(0xFFFAF8F3); // Pour les cartes (Cards) et conteneurs blancs cassés
+  static const Color surface = Color(0xFFf9f9f9); // Pour les cartes (Cards) et conteneurs blancs cassés
 
   // --- Couleurs de Texte (Sobres et Contrastées) ---
   // Fini le texte vert pour les titres, on passe sur des vrais neutres sombres

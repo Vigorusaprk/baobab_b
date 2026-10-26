@@ -1,5 +1,7 @@
+import 'package:baobab_business/core/merchant/merchant_parsing.dart';
 import '../../domain/entities/booking.dart';
 
+/// Une commande reçue, telle que renvoyée par `get-merchant-space`.
 class OrderModel {
   final String id;
   final String userId;
@@ -9,6 +11,10 @@ class OrderModel {
   final DateTime createdAt;
   final String? customerName;
   final String? customerPhone;
+  final String? notes;
+
+  /// Lignes de la commande : {item_name, quantity, price}.
+  final List<Map<String, dynamic>> lines;
 
   OrderModel({
     required this.id,
@@ -19,40 +25,44 @@ class OrderModel {
     required this.createdAt,
     this.customerName,
     this.customerPhone,
+    this.notes,
+    this.lines = const [],
   });
 
-  factory OrderModel.fromJson(Map<String, dynamic> json) => OrderModel(
-    id: json['id'].toString(),
-    userId: json['user_id'].toString(),
-    businessId: json['business_id'].toString(),
-    status: json['status'],
-    totalAmount: _toDouble(json['total_amount']),
-    createdAt: DateTime.parse(json['created_at']),
-    customerName: json['customer_name'],
-    customerPhone: json['customer_phone'],
-  );
-
-  static double _toDouble(dynamic value) {
-    if (value == null) return 0.0;
-    if (value is num) return value.toDouble();
-    if (value is String) return double.tryParse(value) ?? 0.0;
-    return 0.0;
+  /// Construit depuis une ligne de `orders` (client = objet `customer`).
+  factory OrderModel.fromRow(Map<String, dynamic> row, String businessId) {
+    final customer = customerOf(row);
+    return OrderModel(
+      id: row['id'].toString(),
+      userId: row['user_id']?.toString() ?? '',
+      businessId: businessId,
+      status: row['status']?.toString() ?? 'pending',
+      totalAmount: asDouble(row['total_amount'] ?? row['total_price']),
+      createdAt: asInstant(row['created_at']) ?? DateTime.now(),
+      customerName: customer.name,
+      customerPhone: customer.phone,
+      notes: row['notes']?.toString(),
+      lines: asRows(row['order_items']),
+    );
   }
 
-  Booking toBooking() => Booking(
-    id: id,
-    type: 'order',
-    customerName: customerName ?? '',
-    customerPhone: customerPhone ?? '',
-    date: createdAt,
-    totalAmount: totalAmount,
-    status: _mapStatus(status),
-    details: {},
-  );
+  /// Conservé pour l'ancien datasource Dio (code mort).
+  factory OrderModel.fromJson(Map<String, dynamic> json) =>
+      OrderModel.fromRow(json, json['business_id']?.toString() ?? '');
 
-  BookingStatus _mapStatus(String status) {
-    switch (status) {
-      case 'pending': return BookingStatus.pending;
+  Booking toBooking() => Booking(
+        id: id,
+        type: 'order',
+        customerName: customerName ?? '',
+        customerPhone: customerPhone ?? '',
+        date: createdAt,
+        totalAmount: totalAmount,
+        status: _mapStatus(status),
+        details: {'lines': lines, 'notes': notes},
+      );
+
+  static BookingStatus _mapStatus(String s) {
+    switch (s) {
       case 'confirmed': return BookingStatus.confirmed;
       case 'preparing': return BookingStatus.preparing;
       case 'ready': return BookingStatus.ready;

@@ -1,6 +1,8 @@
 // lib/features/inventory/presentation/screens/inventory_detail_screen.dart
 import 'package:baobab_business/features/inventory/presentation/screens/add_edit_item_screen.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
+import '../bloc/inventory_bloc.dart';
 import '../../domain/entities/inventory_item.dart';
 
 
@@ -44,7 +46,7 @@ class InventoryDetailScreen extends StatelessWidget {
             const SizedBox(height: 16),
             _infoRow('Nom', item.name),
             _infoRow('Catégorie', item.category ?? 'Non catégorisé'),
-            _infoRow('Prix', '${item.price.toStringAsFixed(2)} €'),
+            _infoRow('Prix', '${item.price.toStringAsFixed(2)} \$'),
             _infoRow('Disponibilité', item.isAvailable ? 'Disponible' : 'Indisponible'),
             if (item.description != null && item.description!.isNotEmpty)
               _infoRow('Description', item.description!),
@@ -62,15 +64,19 @@ class InventoryDetailScreen extends StatelessWidget {
     );
   }
 
-  void _goToEdit(BuildContext context) {
-    Navigator.push(
+  /// Ouvre le formulaire pré-rempli ; si l'offre a été modifiée, referme le détail
+  /// (la liste est déjà rechargée par le bloc).
+  void _goToEdit(BuildContext context) async {
+    final saved = await Navigator.push<bool>(
       context,
       MaterialPageRoute(
-        builder: (context) => AddEditItemScreen(
-          businessId: businessId,
+        builder: (_) => BlocProvider.value(
+          value: context.read<InventoryBloc>(),
+          child: AddEditItemScreen(businessId: businessId, item: item),
         ),
       ),
-    ).then((_) => Navigator.pop(context)); // Recharge la page de détail après modification
+    );
+    if (saved == true && context.mounted) Navigator.pop(context);
   }
 
   Widget _infoRow(String label, String value) {

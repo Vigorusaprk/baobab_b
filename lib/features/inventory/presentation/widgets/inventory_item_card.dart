@@ -43,7 +43,7 @@ class InventoryItemCard extends StatelessWidget {
                 overflow: TextOverflow.ellipsis,
               ),
               const SizedBox(height: 4),
-              Text('${item.price.toStringAsFixed(2)} €'),
+              Text('${item.price.toStringAsFixed(2)} \$'),
             ],
           ),
         ),

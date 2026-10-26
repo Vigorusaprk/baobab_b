@@ -16,7 +16,9 @@ class BookingsScreen extends StatelessWidget {
     return BlocProvider(
       create: (context) =>
           GetIt.I<BookingsBloc>()..add(LoadBookings(businessId)),
-      child: Scaffold(
+      child: BlocListener<BookingsBloc, BookingsState>(
+        listener: _onBookingsState,
+        child: Scaffold(
         backgroundColor: const Color(0xFFF8F9FA),
         body: Padding(
           padding: const EdgeInsets.all(24),
@@ -28,6 +30,9 @@ class BookingsScreen extends StatelessWidget {
 
               Expanded(
                 child: BlocBuilder<BookingsBloc, BookingsState>(
+                  // Un échec ou un succès de statut ne remplace pas la liste.
+                  buildWhen: (_, s) =>
+                      s is! BookingStatusUpdated && s is! BookingActionFailed,
                   builder: (context, state) {
                     if (state is BookingsLoading) {
                       return const Center(child: CircularProgressIndicator());
@@ -78,8 +83,18 @@ class BookingsScreen extends StatelessWidget {
           ),
         ),
       ),
+      ),
     );
   }
+
+  /// Affiche l'échec d'un changement de statut sans toucher à la liste.
+  void _onBookingsState(BuildContext context, BookingsState state) {
+    if (state is! BookingActionFailed) return;
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text(state.message), backgroundColor: Colors.red),
+    );
+  }
+
   Widget _buildBookingsGrid(BuildContext context, List<dynamic> items, String businessId) {
     if (items.isEmpty) {
       return const Center(child: Text('Aucun élément'));
@@ -105,9 +120,11 @@ class BookingsScreen extends StatelessWidget {
           onTap: () => Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (_) => BookingDetailScreen(
-                booking: b,
-                businessId: businessId,
+              // Le détail est hors de l'arbre du BlocProvider : on lui
+              // transmet le même Bloc, sinon context.read() plante.
+              builder: (_) => BlocProvider.value(
+                value: context.read<BookingsBloc>(),
+                child: BookingDetailScreen(booking: b, businessId: businessId),
               ),
             ),
           ),

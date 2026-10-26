@@ -1,20 +1,17 @@
-import 'package:supabase_flutter/supabase_flutter.dart';
-import 'package:baobab_business/features/bookings/domain/entities/booking.dart';
-import 'package:baobab_business/features/bookings/data/models/order_model.dart';
-import 'package:baobab_business/features/bookings/data/models/reservation_model.dart';
+import 'package:baobab_business/core/merchant/merchant_api.dart';
+import 'package:baobab_business/core/merchant/merchant_parsing.dart';
+import '../../models/order_model.dart';
+import '../../models/reservation_model.dart';
 import 'bookings_remote_datasource.dart';
 
-/// Implémentation Supabase pour les réservations et commandes marchandes.
-///
-/// Elle utilise les Edge Functions Supabase :
-/// - `get-merchant-space` pour récupérer commandes et réservations réelles.
-/// - `update-order-status` pour changer le statut d'une commande.
-/// - `update-reservation-status` pour confirmer ou refuser une réservation.
+/// Commandes et réservations reçues, via l'Edge Function `get-merchant-space`
+/// (clés `orders` et `reservations`). Le commerce est déduit côté serveur
+/// de la ligne `business_staff` : le client ne le transmet jamais.
 class BookingsSupabaseDataSourceImpl implements BookingsRemoteDataSource {
-  final SupabaseClient _supabase;
+  final MerchantApi _api;
 
-  BookingsSupabaseDataSourceImpl({SupabaseClient? supabase})
-      : _supabase = supabase ?? Supabase.instance.client;
+  BookingsSupabaseDataSourceImpl({MerchantApi? api})
+      : _api = api ?? MerchantApi.instance;
 
   @override
   Future<List<OrderModel>> getOrders(
@@ -22,39 +19,12 @@ class BookingsSupabaseDataSourceImpl implements BookingsRemoteDataSource {
     String? status,
     int page = 1,
   }) async {
-    final response = await _supabase.functions.invoke(
-      'get-merchant-space',
-      method: HttpMethod.get,
-    );
-
-    if (response.status != 200 || response.data == null) {
-      return <OrderModel>[];
-    }
-
-    final data = response.data as Map<String, dynamic>;
-    final rawOrders = (data['receivedOrders'] as List<dynamic>?) ?? [];
-
-    final orders = rawOrders.map((json) {
-      final map = json as Map<String, dynamic>;
-      return OrderModel(
-        id: map['id']?.toString() ?? '',
-        userId: map['user_id']?.toString() ?? '',
-        businessId: businessId,
-        status: map['status']?.toString() ?? 'pending',
-        totalAmount: (map['total_amount'] is num)
-            ? (map['total_amount'] as num).toDouble()
-            : 0.0,
-        createdAt: DateTime.tryParse(map['created_at']?.toString() ?? '') ??
-            DateTime.now(),
-        customerName: map['customer_name']?.toString(),
-        customerPhone: map['customer_phone']?.toString(),
-      );
-    }).toList();
-
-    if (status != null && status.isNotEmpty) {
-      return orders.where((o) => o.status == status).toList();
-    }
-    return orders;
+    final data = await _api.space();
+    final orders = asRows(data['orders'])
+        .map((row) => OrderModel.fromRow(row, businessId))
+        .toList();
+    if (status == null || status.isEmpty) return orders;
+    return orders.where((o) => o.status == status).toList();
   }
 
   @override
@@ -63,64 +33,29 @@ class BookingsSupabaseDataSourceImpl implements BookingsRemoteDataSource {
     String? status,
     int page = 1,
   }) async {
-    final response = await _supabase.functions.invoke(
-      'get-merchant-space',
-      method: HttpMethod.get,
-    );
-
-    if (response.status != 200 || response.data == null) {
-      return <ReservationModel>[];
-    }
-
-    final data = response.data as Map<String, dynamic>;
-    final rawReservations = (data['receivedReservations'] as List<dynamic>?) ?? [];
-
-    final reservations = rawReservations.map((json) {
-      final map = json as Map<String, dynamic>;
-      return ReservationModel(
-        id: map['id']?.toString() ?? '',
-        businessId: businessId,
-        userId: map['user_id']?.toString() ?? '',
-        type: map['type']?.toString() ?? 'reservation',
-        reservationDate:
-            DateTime.tryParse(map['reservation_date']?.toString() ?? '') ??
-                DateTime.now(),
-        totalAmount: (map['total_amount'] is num)
-            ? (map['total_amount'] as num).toDouble()
-            : 0.0,
-        details: (map['details'] is Map<String, dynamic>)
-            ? (map['details'] as Map<String, dynamic>)
-            : {},
-        customerName: map['customer_name']?.toString(),
-        customerPhone: map['customer_phone']?.toString(),
-      );
-    }).toList();
-
-    return reservations;
+    final data = await _api.space();
+    final reservations = asRows(data['reservations'])
+        .map((row) => ReservationModel.fromRow(row, businessId))
+        .toList();
+    if (status == null || status.isEmpty) return reservations;
+    return reservations.where((r) => r.status == status).toList();
   }
 
   @override
   Future<void> updateOrderStatus(String orderId, String status) async {
-    await _supabase.functions.invoke(
-      'update-order-status',
-      body: {
-        'orderId': orderId,
-        'status': status,
-      },
-    );
+    await _api.call('update-order-status', {
+      'orderId': orderId,
+      'status': status,
+    });
   }
 
   @override
-  Future<void> updateReservationStatus(
-    String reservationId,
-    String status,
-  ) async {
-    await _supabase.functions.invoke(
-      'update-reservation-status',
-      body: {
-        'reservationId': reservationId,
-        'status': status,
-      },
-    );
+  Future<void> updateReservationStatus(String reservationId, String status) async {
+    await _api.call('update-reservation-status', {
+      // L'identifiant d'une réservation est un entier en base : l'envoyer
+      // en texte fait échouer la comparaison côté serveur.
+      'reservationId': int.tryParse(reservationId) ?? reservationId,
+      'status': status,
+    });
   }
 }

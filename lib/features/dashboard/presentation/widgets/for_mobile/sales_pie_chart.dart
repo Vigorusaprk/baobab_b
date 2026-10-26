@@ -39,13 +39,11 @@ class _SalesPieChartState extends State<SalesPieChart> {
   @override
   void initState() {
     super.initState();
-    _currencyFormat = NumberFormat.currency(locale: 'fr_FR', symbol: '€');
+    _currencyFormat = NumberFormat.currency(locale: 'fr_FR', symbol: '\$');
   }
 
   @override
   Widget build(BuildContext context) {
-    print('Données reçues : \\${widget.data}');
-    print('Total des ventes : \\${widget.totalSales}');
     if (widget.isLoading) return _buildLoading();
     if (widget.errorMessage != null) return _buildError();
     if (widget.data.isEmpty || widget.totalSales == 0) return _buildEmpty();
@@ -182,7 +180,7 @@ class _SalesPieChartState extends State<SalesPieChart> {
             shape: BoxShape.circle,
           ),
           child: Text(
-            '${item.salesAmount.toStringAsFixed(0)}€',
+            '${item.salesAmount.toStringAsFixed(0)}\$',
             style: const TextStyle(fontSize: 12, fontWeight: FontWeight.bold),
           ),
         )

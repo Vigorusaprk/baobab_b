@@ -51,12 +51,14 @@ class _MainScreenState extends State<MainScreen> {
         onTap: (index) => widget.navigationShell.goBranch(index),
         type: BottomNavigationBarType.fixed,
         items: const [
-          BottomNavigationBarItem(icon: Icon(Icons.dashboard), label: 'Dashboard'),
-          BottomNavigationBarItem(icon: Icon(Icons.inventory), label: 'Stock'),
-          BottomNavigationBarItem(icon: Icon(Icons.receipt), label: 'Commandes'),
-          BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Profil'),
+          BottomNavigationBarItem(icon: Icon(Icons.dashboard_outlined), activeIcon: Icon(Icons.dashboard), label: 'Dashboard'),
+          BottomNavigationBarItem(icon: Icon(Icons.inventory_2_outlined), activeIcon: Icon(Icons.inventory_2), label: 'Stock'),
+          BottomNavigationBarItem(icon: Icon(Icons.receipt_long_outlined), activeIcon: Icon(Icons.receipt_long), label: 'Commandes'),
+          BottomNavigationBarItem(icon: Icon(Icons.people_outline), activeIcon: Icon(Icons.people), label: 'Équipe'),
+          BottomNavigationBarItem(icon: Icon(Icons.campaign_outlined), activeIcon: Icon(Icons.campaign), label: 'Pub'),
+          BottomNavigationBarItem(icon: Icon(Icons.storefront_outlined), activeIcon: Icon(Icons.storefront), label: 'Boutique'),
         ],
-        selectedItemColor: Colors.green,
+        selectedItemColor: AppColors.secondary,
         unselectedItemColor: Colors.grey,
       ),
     );
@@ -70,19 +72,29 @@ class _MainScreenState extends State<MainScreen> {
         label: 'Dashboard',
       ),
       const NavigationDestinationItem(
-        icon: Icons.inventory_outlined,
-        selectedIcon: Icons.inventory,
+        icon: Icons.inventory_2_outlined,
+        selectedIcon: Icons.inventory_2,
         label: 'Stock',
       ),
       const NavigationDestinationItem(
-        icon: Icons.receipt_outlined,
-        selectedIcon: Icons.receipt,
+        icon: Icons.receipt_long_outlined,
+        selectedIcon: Icons.receipt_long,
         label: 'Commandes',
       ),
       const NavigationDestinationItem(
-        icon: Icons.person_outline,
-        selectedIcon: Icons.person,
-        label: 'Profil',
+        icon: Icons.people_outline,
+        selectedIcon: Icons.people,
+        label: 'Équipe',
+      ),
+      const NavigationDestinationItem(
+        icon: Icons.campaign_outlined,
+        selectedIcon: Icons.campaign,
+        label: 'Publicité',
+      ),
+      const NavigationDestinationItem(
+        icon: Icons.storefront_outlined,
+        selectedIcon: Icons.storefront,
+        label: 'Boutique',
       ),
     ];
 
@@ -114,32 +126,42 @@ class _MainScreenState extends State<MainScreen> {
   }
 
   Widget _buildLeading() {
-    return Column(
-      children: [
-        Row(
-          children: [
-            Center(
-              child: SvgPicture.asset(
-                "assets/icons/calendar-date-svgrepo-com (1).svg",
-                width: _isExtended ? 65 : 35,
-                height: _isExtended ? 65: 35,
-                colorFilter: ColorFilter.mode(AppColors.scaffoldBackground, BlendMode.srcIn),
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 10),
+      child: Row(
+        children: [
+          Center(
+            child: SvgPicture.asset(
+              "assets/icons/calendar-date-svgrepo-com (1).svg",
+              width: _isExtended ? 50 : 35,
+              height: _isExtended ? 50 : 35,
+              colorFilter: const ColorFilter.mode(AppColors.scaffoldBackground, BlendMode.srcIn),
+            ),
+          ),
+          if (_isExtended) ...[
+            const SizedBox(width: 12),
+            const Flexible(
+              child: Text(
+                "Baobabe",
+                overflow: TextOverflow.ellipsis,
+                style: TextStyle(
+                  color: AppColors.scaffoldBackground,
+                  fontSize: 22,
+                  fontWeight: FontWeight.bold,
+                ),
               ),
             ),
-
-            if(_isExtended) ...[
-              SizedBox(width: 15,),
-              Text("Baobabe", style: TextStyle(color: AppColors.scaffoldBackground, fontSize: 25, fontWeight: FontWeight.bold),),
-            ]
           ],
-        ),
-
-      ],
+        ],
+      ),
     );
   }
 
   Widget _buildTrailing(User? user) {
     if (user == null) return const SizedBox.shrink();
+    return LayoutBuilder(builder: (context, box) {
+      // Étroit (animation ou barre réduite) : avatar seul, sans débordement.
+      final wide = _isExtended && box.maxWidth >= 200;
     return Row(
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
@@ -154,10 +176,10 @@ class _MainScreenState extends State<MainScreen> {
               : null,
         ),
 
-        SizedBox(width: 10,),
-        if (_isExtended) ...[
-          const SizedBox(height: 8),
-          Column(
+        if (wide) ...[
+          const SizedBox(width: 10),
+          Expanded(
+            child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Text(
@@ -169,14 +191,16 @@ class _MainScreenState extends State<MainScreen> {
               const Text('Commerçant', style: TextStyle(fontSize: 11, color: AppColors.scaffoldBackground)),
             ],
           ),
+          ),
           IconButton(
-            onPressed: () {},
+            onPressed: () => context.read<AuthBloc>().add(LogoutRequested()),
             icon: const Icon(Icons.logout, color: AppColors.scaffoldBackground,),
             tooltip: 'Déconnexion',
           ),
         ],
       ],
     );
+    });
   }
 
   String _getInitials(String name) {

@@ -12,15 +12,22 @@ class LoadInventory extends InventoryEvent {
 }
 
 class ToggleAvailability extends InventoryEvent {
-  final String businessId; final int itemId; final bool isAvailable;
+  final String businessId; final String itemId; final bool isAvailable;
   const ToggleAvailability(this.businessId, this.itemId, this.isAvailable);
   @override List<Object> get props => [businessId, itemId, isAvailable];
 }
 
 class UpdateItemPriceEvent extends InventoryEvent {
-  final String businessId; final int itemId; final double price;
+  final String businessId; final String itemId; final double price;
   const UpdateItemPriceEvent(this.businessId, this.itemId, this.price);
   @override List<Object> get props => [businessId, itemId, price];
+}
+
+/// Modification d'une offre existante.
+class UpdateInventoryItemEvent extends InventoryEvent {
+  final String businessId; final String itemId; final Map<String, dynamic> data;
+  const UpdateInventoryItemEvent(this.businessId, this.itemId, this.data);
+  @override List<Object> get props => [businessId, itemId, data];
 }
 
 class CreateInventoryItemEvent extends InventoryEvent {

@@ -60,7 +60,7 @@ class CustomVerticalNavigationBar extends StatelessWidget {
           SizedBox(height: 25,),
           Row(
             children: [
-              if (leading != null) leading!,
+              if (leading != null) Expanded(child: leading!),
               if (onToggleExtended != null) _buildToggleButton(),
             ],
           ),

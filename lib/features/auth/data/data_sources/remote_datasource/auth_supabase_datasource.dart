@@ -1,3 +1,4 @@
+import 'package:baobab_business/core/merchant/merchant_api.dart';
 import 'package:supabase_flutter/supabase_flutter.dart' hide AuthResponse;
 import '../../models/auth_response.dart';
 import 'auth_remote_datasource.dart';
@@ -13,6 +14,8 @@ class AuthSupabaseDataSourceImpl implements AuthRemoteDataSource {
 
   @override
   Future<AuthResponse> login(String email, String password) async {
+    // Nouveau compte : on oublie les données gardées de l'ancien.
+    MerchantApi.instance.clear();
     final authRes = await _supabase.auth.signInWithPassword(
       email: email,
       password: password,
@@ -43,35 +46,6 @@ class AuthSupabaseDataSourceImpl implements AuthRemoteDataSource {
       token: session.accessToken,
       businessId: businessId,
       imgUrl: user.userMetadata?['avatar_url'],
-    );
-  }
-
-  @override
-  Future<AuthResponse> register(
-    String name,
-    String email,
-    String password,
-    String phone,
-  ) async {
-    final authRes = await _supabase.auth.signUp(
-      email: email,
-      password: password,
-      data: {'full_name': name, 'phone': phone},
-    );
-
-    final user = authRes.user;
-    final session = authRes.session;
-    if (user == null) {
-      throw Exception('Échec de l\'inscription');
-    }
-
-    return AuthResponse(
-      id: user.id,
-      name: name,
-      email: user.email ?? '',
-      token: session?.accessToken ?? '',
-      businessId: null,
-      imgUrl: null,
     );
   }
 

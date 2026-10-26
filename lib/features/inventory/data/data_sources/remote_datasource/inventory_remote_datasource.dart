@@ -3,9 +3,10 @@ import 'package:dio/dio.dart';
 
 abstract class InventoryRemoteDataSource {
   Future<List<InventoryItemModel>> getInventory(String businessId);
-  Future<void> updateItemAvailability(String businessId, int itemId, bool isAvailable);
-  Future<void> updateItemPrice(String businessId, int itemId, double price);
+  Future<void> updateItemAvailability(String businessId, String itemId, bool isAvailable);
+  Future<void> updateItemPrice(String businessId, String itemId, double price);
   Future<void> createItem(String businessId, Map<String, dynamic> data);
+  Future<void> updateItem(String itemId, Map<String, dynamic> data);
 }
 
 class InventoryRemoteDataSourceImpl implements InventoryRemoteDataSource {
@@ -21,14 +22,18 @@ class InventoryRemoteDataSourceImpl implements InventoryRemoteDataSource {
   }
 
   @override
-  Future<void> updateItemAvailability(String businessId, int itemId, bool isAvailable) async {
+  Future<void> updateItemAvailability(String businessId, String itemId, bool isAvailable) async {
     await dio.patch('$baseUrl/businesses/$businessId/menu/$itemId', data: {'is_available': isAvailable});
   }
 
   @override
-  Future<void> updateItemPrice(String businessId, int itemId, double price) async {
+  Future<void> updateItemPrice(String businessId, String itemId, double price) async {
     await dio.patch('$baseUrl/businesses/$businessId/menu/$itemId', data: {'price': price});
   }
+
+  @override
+  Future<void> updateItem(String itemId, Map<String, dynamic> data) async =>
+      throw UnimplementedError('Remplacé par InventorySupabaseDataSourceImpl');
 
   @override
   Future<void> createItem(String businessId, Map<String, dynamic> data) async {

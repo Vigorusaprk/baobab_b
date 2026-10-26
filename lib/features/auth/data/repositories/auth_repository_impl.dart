@@ -20,7 +20,6 @@ class AuthRepositoryImpl implements AuthRepository {
     print('🌐 [AUTH_REPO] Appel à remoteDataSource.login'); //[cite: 17]
     try {
       final res = await remoteDataSource.login(email, password); //[cite: 17]
-      print('✅ [AUTH_REPO] Réponse reçue - token: ${res.token.substring(0, 20)}...'); //[cite: 17]
 
       // Sauvegarde locale du token ET de la date/heure actuelle
       await prefs.setString(_tokenKey, res.token); //[cite: 17]
@@ -41,28 +40,6 @@ class AuthRepositoryImpl implements AuthRepository {
   }
 
   @override
-  Future<Either<Failure, User>> register(String name, String email, String password, String phone) async {
-    print('🌐 [AUTH_REPO] Appel à remoteDataSource.register'); //[cite: 17]
-    try {
-      final res = await remoteDataSource.register(name, email, password, phone); //[cite: 17]
-
-      // Sauvegarde locale du token ET de la date/heure actuelle lors de l'inscription
-      await prefs.setString(_tokenKey, res.token); //[cite: 17]
-      await prefs.setString(_loginTimeKey, DateTime.now().toIso8601String());
-
-      return Right(User(
-        id: res.id,
-        name: res.name,
-        email: res.email,
-        businessId: res.businessId,
-        imgUrl: res.imgUrl, // Ajouté : Correction du mappage manquant
-      ));
-    } catch (e) {
-      return Left(ServerFailure(e.toString())); //[cite: 17]
-    }
-  }
-
-  @override
   Future<Either<Failure, User>> getCurrentUser() async {
     print('🔍 [AUTH_REPO] getCurrentUser appelé'); //[cite: 17]
     final token = prefs.getString(_tokenKey); //[cite: 17]
@@ -74,7 +51,6 @@ class AuthRepositoryImpl implements AuthRepository {
       await logout(); // Par sécurité, on nettoie la session
       return Left(ServerFailure('Token or Session timestamp is null')); //[cite: 17]
     }
-    print('✅ [AUTH_REPO] Token récupéré : $token'); //[cite: 17]
 
     // 2. Calcul et validation de la limite des 24 heures
     final DateTime loginTime = DateTime.parse(loginTimeStr);

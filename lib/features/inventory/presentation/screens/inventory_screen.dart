@@ -19,14 +19,20 @@ class InventoryScreen extends StatelessWidget {
         builder: (context, constraints) {
           final isTablet = constraints.maxWidth >= 900; // Seuil ajusté pour tablette
           return Scaffold(
-            backgroundColor: const Color(0xFFF8F9FA), // Fond gris très clair comme l'image
+            backgroundColor: AppColors.surface,
             body: isTablet
                 ? TabletInventory(businessId: businessId)
                 : MobilInventory(businessId: businessId),
             floatingActionButton: FloatingActionButton.extended(
+              // BlocProvider.value : la route poussée est hors de l'arbre du bloc.
               onPressed: () => Navigator.push(
                 context,
-                MaterialPageRoute(builder: (_) => AddEditItemScreen(businessId: businessId)),
+                MaterialPageRoute(
+                  builder: (_) => BlocProvider.value(
+                    value: context.read<InventoryBloc>(),
+                    child: AddEditItemScreen(businessId: businessId),
+                  ),
+                ),
               ),
               backgroundColor: AppColors.secondary, // Jaune comme le bouton "Add New Menu"
               icon: const Icon(Icons.add, color: Colors.white),

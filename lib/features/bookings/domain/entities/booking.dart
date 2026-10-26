@@ -1,6 +1,6 @@
 import 'package:equatable/equatable.dart';
 
-enum BookingStatus { pending, confirmed, preparing, ready, delivered, cancelled }
+enum BookingStatus { pending, confirmed, preparing, ready, delivered, completed, cancelled }
 
 class Booking extends Equatable {
   final String id;

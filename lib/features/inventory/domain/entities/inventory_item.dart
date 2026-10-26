@@ -1,5 +1,5 @@
 class InventoryItem {
-  final int id;
+  final String id;
   final String businessId;
   final String name;
   final double price;

@@ -55,7 +55,7 @@ class RecentOrdersWidget extends StatelessWidget {
                           color: order.status == 'delivered' ? Colors.green : Colors.orange),
                       title: Text('Commande #${order.id}'),
                       subtitle: Text(order.createdAt.toLocal().toString().substring(0, 16)),
-                      trailing: Text('${order.totalAmount.toStringAsFixed(2)} €'),
+                      trailing: Text('${order.totalAmount.toStringAsFixed(2)} \$'),
                     )),
 
                     const Divider(),

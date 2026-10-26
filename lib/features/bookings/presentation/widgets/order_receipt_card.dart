@@ -153,7 +153,7 @@ class BookingReceiptCard extends StatelessWidget {
           _buildItemRow(
               isOrder ? 'Montant de la commande' : 'Frais de réservation',
               '1',
-              '${booking.totalAmount.toStringAsFixed(2)}€'
+              '${booking.totalAmount.toStringAsFixed(2)}\$'
           ),
 
           const SizedBox(height: 16),
@@ -173,7 +173,7 @@ class BookingReceiptCard extends StatelessWidget {
                 ),
               ),
               Text(
-                '${booking.totalAmount.toStringAsFixed(2)}€',
+                '${booking.totalAmount.toStringAsFixed(2)}\$',
                 style: const TextStyle(
                   fontWeight: FontWeight.bold,
                   fontSize: 20,
@@ -231,6 +231,7 @@ class BookingReceiptCard extends StatelessWidget {
       case BookingStatus.confirmed:
       case BookingStatus.ready:
       case BookingStatus.delivered:
+      case BookingStatus.completed:
         return const Color(0xFF1ABC9C); // Vert
       case BookingStatus.pending:
       case BookingStatus.preparing:
@@ -248,6 +249,7 @@ class BookingReceiptCard extends StatelessWidget {
       case 'preparing': return 'EN PRÉPARATION';
       case 'ready': return 'PRÊT';
       case 'delivered': return 'LIVRÉ';
+      case 'completed': return 'HONORÉ';
       case 'cancelled': return 'ANNULÉ';
       default: return statusName.toUpperCase();
     }

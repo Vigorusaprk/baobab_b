@@ -32,7 +32,7 @@ class InventoryItemModel extends InventoryItem {
 
   factory InventoryItemModel.fromJson(Map<String, dynamic> json) {
     return InventoryItemModel(
-      id: json['id'] as int,
+      id: json['id'].toString(),
       businessId: json['business_id'].toString(),
       name: json['item_name'] ?? '',
       price: _toDouble(json['price']),

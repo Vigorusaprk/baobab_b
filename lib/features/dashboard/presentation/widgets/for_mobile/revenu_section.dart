@@ -102,7 +102,7 @@ class RevenueSection extends StatelessWidget {
               const SizedBox(width: 8),
               // Valeur du CA
               Text(
-                '${stats.todayRevenue.toStringAsFixed(2)} €',
+                '${stats.todayRevenue.toStringAsFixed(2)} \$',
                 style: TextStyle(
                   fontSize: 45,
                   fontWeight: FontWeight.bold,
@@ -177,7 +177,7 @@ class RevenueSection extends StatelessWidget {
               ),
               const SizedBox(width: 8),
               const Text(
-                '€',
+                '\$',
                 style: TextStyle(
                   fontSize: 24,
                   fontWeight: FontWeight.w500,

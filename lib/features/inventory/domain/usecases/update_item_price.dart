@@ -5,5 +5,5 @@ import '../repositories/inventory_repository.dart';
 class UpdateItemPrice {
   final InventoryRepository repository;
   UpdateItemPrice(this.repository);
-  Future<Either<Failure, void>> call(String businessId, int itemId, double price) => repository.updatePrice(businessId, itemId, price);
+  Future<Either<Failure, void>> call(String businessId, String itemId, double price) => repository.updatePrice(businessId, itemId, price);
 }

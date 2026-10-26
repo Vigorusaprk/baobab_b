@@ -12,12 +12,16 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
   final GetBookings getBookings;
   final UpdateBookingStatus updateBookingStatus;
 
+  /// Dernier commerce chargé : sert à recharger la liste après une action.
+  String _businessId = '';
+
   BookingsBloc({required this.getBookings, required this.updateBookingStatus}) : super(BookingsInitial()) {
     on<LoadBookings>(_onLoad);
     on<UpdateBookingStatusEvent>(_onUpdate);
   }
 
   Future<void> _onLoad(LoadBookings event, Emitter<BookingsState> emit) async {
+    _businessId = event.businessId;
     emit(BookingsLoading());
     final result = await getBookings(event.businessId, type: event.type, status: event.status);
     result.fold((f) => emit(BookingsError(f.message)), (b) => emit(BookingsLoaded(b)));
@@ -25,6 +29,12 @@ class BookingsBloc extends Bloc<BookingsEvent, BookingsState> {
 
   Future<void> _onUpdate(UpdateBookingStatusEvent event, Emitter<BookingsState> emit) async {
     final result = await updateBookingStatus(event.id, event.type, event.status);
-    result.fold((f) => emit(BookingsError(f.message)), (_) => emit(BookingStatusUpdated()));
+    result.fold(
+      (f) => emit(BookingActionFailed(f.message)),
+      (_) {
+        emit(BookingStatusUpdated());
+        add(LoadBookings(_businessId)); // la liste reflète le nouveau statut
+      },
+    );
   }
 }

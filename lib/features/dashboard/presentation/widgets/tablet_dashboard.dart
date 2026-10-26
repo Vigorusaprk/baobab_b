@@ -10,7 +10,6 @@ import 'package:baobab_business/features/dashboard/presentation/widgets/for_mobi
 import 'package:baobab_business/features/dashboard/presentation/widgets/for_mobile/oter_info_section.dart';
 import 'package:baobab_business/features/dashboard/presentation/widgets/for_mobile/monthly_income_chart.dart';
 import 'package:baobab_business/features/dashboard/presentation/widgets/for_mobile/sales_pie_chart.dart';
-import 'package:baobab_business/features/dashboard/presentation/widgets/for_mobile/client_liste.dart';
 
 class TabletDashboard extends StatelessWidget {
   final String businessId;
@@ -79,7 +78,6 @@ class TabletDashboard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 20),
-          CustomerListWidget(businessId: businessId),
         ],
       ),
     );

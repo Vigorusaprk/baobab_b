@@ -17,3 +17,9 @@ class BookingsError extends BookingsState {
   @override List<Object> get props => [message];
 }
 class BookingStatusUpdated extends BookingsState {}
+/// Un changement de statut a échoué : la liste affichée reste en place.
+class BookingActionFailed extends BookingsState {
+  final String message;
+  const BookingActionFailed(this.message);
+  @override List<Object> get props => [message];
+}

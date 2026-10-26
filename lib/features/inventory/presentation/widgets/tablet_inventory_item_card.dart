@@ -57,16 +57,13 @@ class TabletInventoryItemCard extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                             const SizedBox(width: 8),
-                            Text('${item.price.toStringAsFixed(2)} €'),
+                            Text('${item.price.toStringAsFixed(2)} \$'),
                             const SizedBox(width: 8),
                             Text(item.isAvailable.toString())
                           ],
                         ),
                       ),
-                      GestureDetector(
-                        onTap: (){},
-                          child: Icon(Icons.more_horiz)
-                      ),
+
                     ],
                   ),
 

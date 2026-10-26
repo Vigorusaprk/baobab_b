@@ -1,8 +1,14 @@
+import 'package:baobab_business/core/themes/app_colors.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
-import '../bloc/inventory_bloc.dart';
 import '../../domain/entities/inventory_item.dart';
+import '../bloc/inventory_bloc.dart';
+import '../widgets/fulfilment_picker.dart';
+import '../widgets/item_form_fields.dart';
+import '../widgets/item_save_button.dart';
 
+/// Formulaire d'ajout (item == null) ou de modification d'une offre.
+/// Doit être ouvert avec `BlocProvider.value` pour partager l'InventoryBloc.
 class AddEditItemScreen extends StatefulWidget {
   final String businessId;
   final InventoryItem? item;
@@ -13,141 +19,95 @@ class AddEditItemScreen extends StatefulWidget {
 }
 
 class _AddEditItemScreenState extends State<AddEditItemScreen> {
-  final _nameCtrl = TextEditingController();
-  final _priceCtrl = TextEditingController();
-  final _categoryCtrl = TextEditingController();
-  final _descriptionCtrl = TextEditingController();
-  final _imageUrlCtrl = TextEditingController();
-  final _ingredientsCtrl = TextEditingController();
+  final _name = TextEditingController();
+  final _price = TextEditingController();
+  final _category = TextEditingController();
+  final _description = TextEditingController();
+  final _imageUrl = TextEditingController();
+  String _fulfilment = 'order';
+  bool _saving = false;
+
+  bool get _isEdit => widget.item != null;
 
   @override
   void initState() {
     super.initState();
-    if (widget.item != null) {
-      _nameCtrl.text = widget.item!.name;
-      _priceCtrl.text = widget.item!.price.toString();
-      _categoryCtrl.text = widget.item!.category ?? '';
-      _descriptionCtrl.text = widget.item!.description ?? '';
-      _imageUrlCtrl.text = widget.item!.imageUrl ?? '';
-      _ingredientsCtrl.text = widget.item!.ingredients ?? '';
-    }
+    final i = widget.item;
+    if (i == null) return;
+    _name.text = i.name;
+    _price.text = i.price.toString();
+    _category.text = i.category ?? '';
+    _description.text = i.description ?? '';
+    _imageUrl.text = i.imageUrl ?? '';
   }
 
-  String _fulfilment = 'order'; // 'order', 'booking', 'in_store'
+  @override
+  void dispose() {
+    for (final c in [_name, _price, _category, _description, _imageUrl]) {
+      c.dispose();
+    }
+    super.dispose();
+  }
+
+  /// Valide les champs puis envoie la création ou la modification.
+  void _save() {
+    final price = double.tryParse(_price.text.trim().replaceAll(',', '.'));
+    if (_name.text.trim().isEmpty) return _toast('Veuillez entrer un nom');
+    if (price == null || price < 0) return _toast('Prix invalide');
+
+    final data = {
+      'item_name': _name.text.trim(),
+      'price': price,
+      'item_category': _category.text,
+      'description': _description.text,
+      'image_url': _imageUrl.text,
+      'fulfilment': _fulfilment,
+    };
+    setState(() => _saving = true);
+    final bloc = context.read<InventoryBloc>();
+    bloc.add(_isEdit
+        ? UpdateInventoryItemEvent(widget.businessId, widget.item!.id, data)
+        : CreateInventoryItemEvent(widget.businessId, data));
+  }
+
+  void _toast(String m) =>
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(m)));
 
   @override
   Widget build(BuildContext context) {
-    final isTablet = MediaQuery.of(context).size.width >= 600;
-    return Scaffold(
-      appBar: AppBar(
-        title: Text(widget.item == null ? 'Ajouter une offre' : 'Modifier'),
-        backgroundColor: Colors.green,
-        foregroundColor: Colors.white,
-      ),
-      body: Center(
-        child: Container(
-          width: isTablet ? 500 : double.infinity,
-          margin: isTablet ? const EdgeInsets.all(32) : EdgeInsets.zero,
-          padding: const EdgeInsets.all(16),
-          decoration: isTablet
-              ? BoxDecoration(
-            color: Colors.white,
-            borderRadius: BorderRadius.circular(16),
-            boxShadow: [BoxShadow(color: Colors.grey.shade300, blurRadius: 10)],
-          )
-              : null,
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Sélecteur de type d'offre (Modèle unifié Baobab)
-                const Text(
-                  'Type de l\'offre',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 15),
+    return BlocListener<InventoryBloc, InventoryState>(
+      listener: (context, state) {
+        if (state is InventorySaved) Navigator.pop(context, true);
+        if (state is InventorySaveFailed) {
+          setState(() => _saving = false);
+          _toast(state.message);
+        }
+      },
+      child: Scaffold(
+        appBar: AppBar(
+          title: Text(_isEdit ? 'Modifier l\'offre' : 'Ajouter une offre'),
+          backgroundColor: AppColors.secondary,
+          foregroundColor: Colors.white,
+        ),
+        body: Center(
+          child: ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 560),
+            child: ListView(padding: const EdgeInsets.all(16), children: [
+              if (!_isEdit)
+                FulfilmentPicker(
+                  value: _fulfilment,
+                  onChanged: (v) => setState(() => _fulfilment = v),
                 ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    ChoiceChip(
-                      label: const Text('À commander'),
-                      selected: _fulfilment == 'order',
-                      onSelected: (val) => setState(() => _fulfilment = 'order'),
-                    ),
-                    const SizedBox(width: 8),
-                    ChoiceChip(
-                      label: const Text('À réserver'),
-                      selected: _fulfilment == 'booking',
-                      onSelected: (val) => setState(() => _fulfilment = 'booking'),
-                    ),
-                    const SizedBox(width: 8),
-                    ChoiceChip(
-                      label: const Text('En boutique'),
-                      selected: _fulfilment == 'in_store',
-                      onSelected: (val) => setState(() => _fulfilment = 'in_store'),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 16),
-                TextField(controller: _nameCtrl, decoration: const InputDecoration(labelText: 'Nom *')),
-                const SizedBox(height: 12),
-                TextField(
-                  controller: _priceCtrl,
-                  decoration: const InputDecoration(labelText: 'Prix *'),
-                  keyboardType: TextInputType.number,
-                ),
-                const SizedBox(height: 12),
-                TextField(controller: _categoryCtrl, decoration: const InputDecoration(labelText: 'Catégorie')),
-                const SizedBox(height: 12),
-                TextField(controller: _descriptionCtrl, decoration: const InputDecoration(labelText: 'Description')),
-                const SizedBox(height: 12),
-                TextField(controller: _imageUrlCtrl, decoration: const InputDecoration(labelText: 'URL image')),
-                const SizedBox(height: 12),
-                TextField(controller: _ingredientsCtrl, decoration: const InputDecoration(labelText: 'Ingrédients')),
-                const SizedBox(height: 24),
-                ElevatedButton(
-                  onPressed: _save,
-                  style: ElevatedButton.styleFrom(backgroundColor: Colors.green),
-                  child: const Text('Enregistrer'),
-                ),
-              ],
-            ),
+              ItemFormFields(
+                name: _name, price: _price, category: _category,
+                description: _description, imageUrl: _imageUrl,
+              ),
+              const SizedBox(height: 12),
+              ItemSaveButton(saving: _saving, onPressed: _save),
+            ]),
           ),
         ),
       ),
     );
-  }
-
-  void _save() {
-    final name = _nameCtrl.text.trim();
-    final priceText = _priceCtrl.text.trim();
-    if (name.isEmpty) {
-      _showSnackBar('Veuillez entrer un nom');
-      return;
-    }
-    if (priceText.isEmpty) {
-      _showSnackBar('Veuillez entrer un prix');
-      return;
-    }
-    final price = double.tryParse(priceText);
-    if (price == null) {
-      _showSnackBar('Prix invalide');
-      return;
-    }
-
-    final data = {
-      'item_name': name,
-      'price': price,
-      'item_category': _categoryCtrl.text.trim(),
-      'description': _descriptionCtrl.text.trim(),
-      'image_url': _imageUrlCtrl.text.trim(),
-      'ingredients': _ingredientsCtrl.text.trim(),
-      'fulfilment': _fulfilment,
-    };
-    context.read<InventoryBloc>().add(CreateInventoryItemEvent(widget.businessId, data));
-    Navigator.pop(context);
-  }
-
-  void _showSnackBar(String message) {
-    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message)));
   }
 }
