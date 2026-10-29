@@ -5,7 +5,6 @@ import 'package:baobab_business/features/auth/domain/repositories/auth_repositor
 import 'package:baobab_business/features/auth/domain/usecases/check_auth_status.dart';
 import 'package:baobab_business/features/auth/domain/usecases/login.dart';
 import 'package:baobab_business/features/auth/domain/usecases/logout.dart';
-import 'package:baobab_business/features/auth/domain/usecases/register.dart';
 import 'package:baobab_business/features/auth/presentation/bloc/auth_bloc.dart';
 import 'package:baobab_business/features/bookings/data/data_sources/remote_datasource/bookings_remote_datasource.dart';
 import 'package:baobab_business/features/bookings/data/data_sources/remote_datasource/bookings_supabase_datasource.dart';
@@ -16,17 +15,13 @@ import 'package:baobab_business/features/business/data/data_sources/remote_datas
 import 'package:baobab_business/features/business/data/repositories/business_repository_impl.dart';
 import 'package:baobab_business/features/business/domain/repositories/business_repository.dart';
 import 'package:baobab_business/features/business/presentation/bloc/business_bloc.dart';
-import 'package:baobab_business/features/dashboard/data/data_sources/remote_datasource/customer_remote_datasource.dart';
 import 'package:baobab_business/features/dashboard/data/data_sources/remote_datasource/dashboard_remote_datasource.dart';
 import 'package:baobab_business/features/dashboard/data/data_sources/remote_datasource/dashboard_supabase_datasource.dart';
-import 'package:baobab_business/features/dashboard/data/repositories/customer_repository_impl.dart';
 import 'package:baobab_business/features/dashboard/data/repositories/dashboard_repository_impl.dart';
-import 'package:baobab_business/features/dashboard/domain/repositories/customer_repository.dart';
 import 'package:baobab_business/features/dashboard/domain/repositories/dashboard_repository.dart';
 import 'package:baobab_business/features/dashboard/domain/usecases/get_dashboard_stats.dart';
 import 'package:baobab_business/features/dashboard/domain/usecases/get_product_sales.dart';
 import 'package:baobab_business/features/dashboard/domain/usecases/get_recent_orders.dart';
-import 'package:baobab_business/features/dashboard/presentation/bloc/customer_bloc.dart';
 import 'package:baobab_business/features/dashboard/presentation/bloc/dashboard_bloc.dart';
 import 'package:baobab_business/features/inventory/data/data_sources/remote_datasource/inventory_remote_datasource.dart';
 import 'package:baobab_business/features/inventory/data/data_sources/remote_datasource/inventory_supabase_datasource.dart';
@@ -67,13 +62,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => Login(sl()));
   sl.registerLazySingleton(() => CheckAuthStatus(sl()));
   sl.registerLazySingleton(() => Logout(sl()));
-  sl.registerFactory(() => AuthBloc(login: sl(), checkAuthStatus: sl(), logout: sl(), register: sl()));
-  sl.registerLazySingleton(() => Register(sl<AuthRepository>()));
 
-  // Customers
-  sl.registerLazySingleton<CustomerRemoteDataSource>(() => CustomerRemoteDataSourceImpl(dio: sl()));
-  sl.registerLazySingleton<CustomerRepository>(() => CustomerRepositoryImpl(remoteDataSource: sl()));
-  sl.registerFactory<CustomerBloc>(() => CustomerBloc(repository: sl()));
 
   // Dashboard (connecté à Supabase)
   sl.registerLazySingleton<DashboardRemoteDataSource>(() => DashboardSupabaseDataSourceImpl());
@@ -97,12 +86,7 @@ Future<void> init() async {
   sl.registerLazySingleton(() => UpdateItemAvailability(sl()));
   sl.registerLazySingleton(() => UpdateItemPrice(sl()));
   sl.registerLazySingleton(() => CreateInventoryItem(sl()));
-  sl.registerFactory(() => InventoryBloc(
-    getInventory: sl(),
-    updateItemAvailability: sl(),
-    updateItemPrice: sl(),
-    createInventoryItem: sl(),
-  ));
+
 
   // Bookings (connecté à Supabase)
   sl.registerLazySingleton<BookingsRemoteDataSource>(() => BookingsSupabaseDataSourceImpl());
